@@ -103,6 +103,32 @@ void fillTreeData(myDAQEventData& data,treeStructData& treeData)
     }
 
 }
+
+
+void createOutBranches(TTree* tree,treeStructData& treeData)
+{
+  //Instantiate the tree branches
+  tree->Branch("evtNumber",&treeData.evtNumber,"evtNumber/i");
+  tree->Branch("evtTimeDist",&treeData.evtTimeDist,"evtTimeDist/i");
+  tree->Branch("evtTimeStart",&treeData.evtTimeStart,"evtTimeStart/i");
+  tree->Branch("evtTime",&treeData.evtTime,"evtTime/i");
+
+  tree->Branch("boardTriggerBit",&treeData.boardTriggerBit,"boardTriggerBit/i");
+
+  tree->Branch("triggerWord",&treeData.triggerWord,"triggerWord/i");
+
+  tree->Branch("nAdcChannels",&treeData.nAdcChannels,"nAdcChannels/i");
+  tree->Branch("adcBoard",treeData.adcBoard,"adcBoard[nAdcChannels]/i");
+  tree->Branch("adcChannel",treeData.adcChannel,"adcChannel[nAdcChannels]/i");
+  tree->Branch("adcData",treeData.adcData,"adcData[nAdcChannels]/i");
+
+  tree->Branch("nTdcChannels",&treeData.nTdcChannels,"nTdcChannels/i");
+  tree->Branch("tdcBoard",treeData.tdcBoard,"tdcBoard[nTdcChannels]/i");
+  tree->Branch("tdcChannel",treeData.tdcChannel,"tdcChannel[nTdcChannels]/i");
+  tree->Branch("tdcData",treeData.tdcData,"tdcData[nTdcChannels]/i");
+
+}
+
 int main(int argc, char *argv[])
 {
   char *filename = NULL;
@@ -154,31 +180,12 @@ int main(int argc, char *argv[])
 
   TTree* tree=new TTree("eventRawData","VME event RAW Data");
   treeStructData thisTreeEvent;
-
-  //Instantiate the tree branches
-  tree->Branch("evtNumber",&thisTreeEvent.evtNumber,"evtNumber/i");
-  tree->Branch("evtTimeDist",&thisTreeEvent.evtTimeDist,"evtTimeDist/i");
-  tree->Branch("evtTimeStart",&thisTreeEvent.evtTimeStart,"evtTimeStart/i");
-  tree->Branch("evtTime",&thisTreeEvent.evtTime,"evtTime/i");
-
-  tree->Branch("boardTriggerBit",&thisTreeEvent.boardTriggerBit,"boardTriggerBit/i");
-
-  tree->Branch("triggerWord",&thisTreeEvent.triggerWord,"triggerWord/i");
-
-  tree->Branch("nAdcChannels",&thisTreeEvent.nAdcChannels,"nAdcChannels/i");
-  tree->Branch("adcBoard",thisTreeEvent.adcBoard,"adcBoard[nAdcChannels]/i");
-  tree->Branch("adcChannel",thisTreeEvent.adcChannel,"adcChannel[nAdcChannels]/i");
-  tree->Branch("adcData",thisTreeEvent.adcData,"adcData[nAdcChannels]/i");
-
-  tree->Branch("nTdcChannels",&thisTreeEvent.nTdcChannels,"nTdcChannels/i");
-  tree->Branch("tdcBoard",thisTreeEvent.tdcBoard,"tdcBoard[nTdcChannels]/i");
-  tree->Branch("tdcChannel",thisTreeEvent.tdcChannel,"tdcChannel[nTdcChannels]/i");
-  tree->Branch("tdcData",thisTreeEvent.tdcData,"tdcData[nTdcChannels]/i");
+  
+  createOutBranches(tree,thisTreeEvent);
   
   unsigned int evtSize;
   unsigned int adcChannels;
   unsigned int eventHeaderSize;
-
   myDAQEventData thisEvent;
   
   unsigned int totEvents=0;
