@@ -134,8 +134,9 @@ int main(int argc, char *argv[])
   char *filename = NULL;
   char *outfile = NULL;
   int c;
+  bool adc792=false;
 
-  while ((c = getopt (argc, argv, "f:o:")) != -1)
+  while ((c = getopt (argc, argv, "7f:o:")) != -1)
     switch (c)
       {
       case 'f':
@@ -144,6 +145,10 @@ int main(int argc, char *argv[])
       case 'o':
 	outfile = optarg;
 	break;
+      case '7':
+	adc792 = true;
+	break;
+
       case '?':
 	if (optopt == 'f' || optopt == 'o')
 	  fprintf (stderr, "Option -%c requires an argument.\n", optopt);
@@ -205,17 +210,47 @@ int main(int argc, char *argv[])
       thisEvent.tdcValues.clear();
       myFile.read ((char*)&adcChannels, sizeof(adcChannels));
       myFile.read ((char*)&eventHeaderSize, sizeof(eventHeaderSize));
+
       for (int i=0;i<adcChannels;++i)
 	{
-	  unsigned int adcRawData;
-	  myFile.read ((char*)&adcRawData, sizeof(adcRawData));
-	  adcData thisData;
-	  thisData.board=0; //for the moment just 1 board
-	  //These bit masks are valid for the ADC V265
-	  thisData.channel = (adcRawData & 0xe000)>>13;
-	  thisData.adcReadout = adcRawData & 0xfff;
-	  thisEvent.adcValues.push_back(thisData);
-	} 
+	      unsigned int adcRawData;
+	      myFile.read ((char*)&adcRawData, sizeof(adcRawData));
+	      if (!adc792)
+		{
+		  //FOR ADC265 DATA
+		  adcData thisData;
+		  thisData.board=0; //for the moment just 1 board
+		  //These bit masks are valid for the ADC V265
+		  thisData.channel = (adcRawData & 0xe000)>>13;
+		  thisData.adcReadout = adcRawData & 0xfff;
+		  thisEvent.adcValues.push_back(thisData);
+		}
+	      else
+		{
+		  short dt_type = adcRawData>>24 & 0x7; //dt_type 0 is datum,2 is BOE,4 is EOE
+		  if (dt_type==0)
+		    {
+		      //FOR ADC792 DATA
+		      adcData thisData;
+
+		      thisData.board=0; //for the moment just 1 board
+		      thisData.channel = adcRawData>>16 & 0x1F;
+		      thisData.adcReadout = adcRawData & 0xFFF;
+		      if ((adcRawData>>12) & 0x1) //overflow
+			thisData.adcReadout=4095;
+
+		      thisEvent.adcValues.push_back(thisData);
+		    }
+		  if (dt_type==4)
+		    {
+		      unsigned int adcEvt=adcRawData & 0xFFFFFF;
+		      if (adcEvt+1 != thisEvent.evtNumber)
+			std::cout << "HEY MISMATCH IN EVT NUMBER ADCEVT " << adcEvt << " EVT " << thisEvent.evtNumber << std::endl;
+		    }
+		  //printf("WORD %d: %X %d\n",i,adcRawData,dt_type);
+		}
+	}
+
       //      std::cout << "This event has " << thisEvent.adcValues.size() << " ADC channels " << std::endl;
       myFile.read ((char*)&thisEvent.evtTimeDist, sizeof(thisEvent.evtTimeDist));
       myFile.read ((char*)&thisEvent.evtTimeStart, sizeof(thisEvent.evtTimeStart));
@@ -226,7 +261,7 @@ int main(int argc, char *argv[])
       ++totEvents;
     }
 
-  std::cout << totEvents << " were read in total" << std::endl;
+  std::cout << totEvents << " events were read in total" << std::endl;
 
   tree->Write();
   out->Close();
