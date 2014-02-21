@@ -1,0 +1,6 @@
+Simple scripts to convert raw data and produce inclusive plots of ADC and TDC spectra
+
+Usage:
+source $HOME/root/bin/thisroot.sh
+make all
+./makeDqmPlots.sh ~/DAQ/VMEDAQ/runs/run0000022_20140220
