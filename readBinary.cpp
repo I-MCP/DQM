@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
 		    {
 		      unsigned int adcEvt=adcRawData & 0xFFFFFF;
 		      if (adcEvt+1 != thisEvent.evtNumber)
-			std::cout << "HEY MISMATCH IN EVT NUMBER ADCEVT " << adcEvt << " EVT " << thisEvent.evtNumber << std::endl;
+			std::cout << "HEY MISMATCH IN EVT NUMBER ADCEVT " << adcEvt+1 << " EVT " << thisEvent.evtNumber << std::endl;
 		    }
 		  //printf("WORD %d: %X %d\n",i,adcRawData,dt_type);
 		}
