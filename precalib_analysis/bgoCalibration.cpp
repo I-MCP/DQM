@@ -35,7 +35,7 @@ int main() {
   std::string resultsFileName = Form("%s/results.txt", outdir.c_str());
   ofstream ofs(resultsFileName.c_str());
 
-  ofs << "ped " << pedestal << std::endl;
+  ofs << Form("ped %.3f", pedestal) << std::endl;
 
   int nChannels=8;
 
