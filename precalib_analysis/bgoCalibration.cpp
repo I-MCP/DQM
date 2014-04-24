@@ -21,7 +21,9 @@ int main() {
   TTree* tree_ped = (TTree*)file_ped->Get("eventRawData");
 
   TH1D* h1_pedestal = new TH1D("ped", "", 200, 100., 200.);
+  h1_pedestal->SetXTitle( "ADC Counts" );
   tree_ped->Project("ped", "adcData[0]");
+
 
   float pedestal = h1_pedestal->GetMean();
 
@@ -31,6 +33,17 @@ int main() {
   std::string outdir = Form("bgoCalibration_hv%d_%s", hv, suffix.c_str() );
   std::string mkdir_command = "mkdir -p " + outdir;
   system(mkdir_command.c_str());
+
+  TCanvas* c1 = new TCanvas("c1", "", 600, 600);
+  c1->cd();
+
+  h1_pedestal->Draw();
+    
+  c1->SaveAs( Form("%s/pedestal.eps", outdir.c_str()) );
+  c1->SaveAs( Form("%s/pedestal.png", outdir.c_str()) );
+
+  delete c1;
+
 
   std::string resultsFileName = Form("%s/results.txt", outdir.c_str());
   ofstream ofs(resultsFileName.c_str());
@@ -58,12 +71,13 @@ float getSinglePeakPosition( const std::string& outdir, int hv, const std::strin
 
   TTree* tree = (TTree*)file->Get("eventRawData");
 
-  TH1D* h1_spectrum_full  = new TH1D("spectrum_full",  "", 1000, 0., 1000.);
+  std::string name = Form("Channel %d", iChannel);
+  TH1D* h1_spectrum_full  = new TH1D(name.c_str(),  "", 1000, 0., 1000.);
   TH1D* h1_spectrum_trunc = new TH1D("spectrum_trunc", "", 70, 300., 1000.);
 
-  h1_spectrum_full->SetXTitle( "adcData[0]" );
+  h1_spectrum_full->SetXTitle( "ADC Counts" );
   
-  tree->Project("spectrum_full",  "adcData[0]");
+  tree->Project(name.c_str(),  "adcData[0]");
   tree->Project("spectrum_trunc", "adcData[0]");
 
   // initialize position to point of maximum of truncated histo:
@@ -100,8 +114,8 @@ float getSinglePeakPosition( const std::string& outdir, int hv, const std::strin
 
   h1_spectrum_full->Draw();
     
-  c1->SaveAs( Form("%s/ped_ch%d.eps", outdir.c_str(), iChannel) );
-  c1->SaveAs( Form("%s/ped_ch%d.png", outdir.c_str(), iChannel) );
+  c1->SaveAs( Form("%s/fit_ch%d.eps", outdir.c_str(), iChannel) );
+  c1->SaveAs( Form("%s/fit_ch%d.png", outdir.c_str(), iChannel) );
 
   delete c1;
 
