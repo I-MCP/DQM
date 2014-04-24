@@ -48,12 +48,12 @@ int main() {
   std::string resultsFileName = Form("%s/results.txt", outdir.c_str());
   ofstream ofs(resultsFileName.c_str());
 
-  ofs << Form("ped %.3f", pedestal) << std::endl;
+  ofs << Form("ped\t%.3f", pedestal) << std::endl;
 
   int nChannels=8;
 
   for( unsigned i=1; i<nChannels+1; ++i ) 
-    ofs << i << " " << getSinglePeakPosition(outdir, hv, suffix, i) - pedestal << std::endl;
+    ofs << i << "\t" << getSinglePeakPosition(outdir, hv, suffix, i) - pedestal << std::endl;
 
   ofs.close();
 
