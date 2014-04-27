@@ -287,11 +287,11 @@ void fastDQM_CeF3_BTF::Loop()
   //Correlation plots
   TH2F* h_bgo_vs_cef3;
   h_bgo_vs_cef3=new TH2F("bgo_vs_cef3","bgo_vs_cef3",4096,-0.5,4095.5,4096,-0.5,4095.5);
-  outObjects[TString("CORR_")+TString(h_bgo_vs_cef3->GetName())]=(TObject*)h_bgo_vs_cef3; 
+  outObjects[TString("CORRCALO_")+TString(h_bgo_vs_cef3->GetName())]=(TObject*)h_bgo_vs_cef3; 
 
   TH2F* h_hodoX_vs_calo;
   h_hodoX_vs_calo=new TH2F("hodoX_vs_calo","hodoX_vs_calo",4096,-0.5,4095.5,4096,-0.5,4095.5);
-  outObjects[TString("CORR_")+TString(h_hodoX_vs_calo->GetName())]=(TObject*)h_hodoX_vs_calo; 
+  outObjects[TString("CORRCALOHODO_")+TString(h_hodoX_vs_calo->GetName())]=(TObject*)h_hodoX_vs_calo; 
 
   TH2F* h_hodoXPos_vs_bgoLRAsymm;
   h_hodoXPos_vs_bgoLRAsymm=new TH2F("hodoX_vs_bgoLRAsymm","hodoXPos_vs_bgoLRAsymm",200,-1.,1.,200,0.,HODOX_CHANNELS);
@@ -299,7 +299,7 @@ void fastDQM_CeF3_BTF::Loop()
 
   TH2F* h_hodoY_vs_calo;
   h_hodoY_vs_calo=new TH2F("hodoY_vs_calo","hodoY_vs_calo",4096,-0.5,4095.5,4096,-0.5,4095.5);
-  outObjects[TString("CORR_")+TString(h_hodoY_vs_calo->GetName())]=(TObject*)h_hodoY_vs_calo; 
+  outObjects[TString("CORRCALOHODO_")+TString(h_hodoY_vs_calo->GetName())]=(TObject*)h_hodoY_vs_calo; 
 
   TH2F* h_hodoYPos_vs_bgoUDAsymm;
   h_hodoYPos_vs_bgoUDAsymm=new TH2F("hodoY_vs_bgoUDAsymm","hodoYPos_vs_bgoUDAsymm",200,-1.,1.,200,0.,HODOY_CHANNELS);
@@ -307,73 +307,73 @@ void fastDQM_CeF3_BTF::Loop()
 
   TH2F* h_centerXTagger_vs_calo;
   h_centerXTagger_vs_calo=new TH2F("centerXTagger_vs_calo","centerXTagger_vs_calo",4096,-0.5,4095.5,4096,-0.5,4095.5);
-  outObjects[TString("CORR_")+TString(h_centerXTagger_vs_calo->GetName())]=(TObject*)h_centerXTagger_vs_calo; 
+  outObjects[TString("CORRCALOCENTERTAGGER_")+TString(h_centerXTagger_vs_calo->GetName())]=(TObject*)h_centerXTagger_vs_calo; 
 
   TH2F* h_centerYTagger_vs_calo;
   h_centerYTagger_vs_calo=new TH2F("centerYTagger_vs_calo","centerYTagger_vs_calo",4096,-0.5,4095.5,4096,-0.5,4095.5);
-  outObjects[TString("CORR_")+TString(h_centerYTagger_vs_calo->GetName())]=(TObject*)h_centerYTagger_vs_calo; 
+  outObjects[TString("CORRCALOCENTERTAGGER_")+TString(h_centerYTagger_vs_calo->GetName())]=(TObject*)h_centerYTagger_vs_calo; 
 
   TH2F* h_scintFront_vs_calo;
   h_scintFront_vs_calo=new TH2F("scintFront_vs_calo","scintFront_vs_calo",4096,-0.5,4095.5,4096,-0.5,4095.5);
-  outObjects[TString("CORR_")+TString(h_scintFront_vs_calo->GetName())]=(TObject*)h_scintFront_vs_calo; 
+  outObjects[TString("CORRSCINTCALO_")+TString(h_scintFront_vs_calo->GetName())]=(TObject*)h_scintFront_vs_calo; 
 
   TH2F* h_scintBack_vs_calo;
   h_scintBack_vs_calo=new TH2F("scintBack_vs_calo","scintBack_vs_calo",4096,-0.5,4095.5,4096,-0.5,4095.5);
-  outObjects[TString("CORR_")+TString(h_scintBack_vs_calo->GetName())]=(TObject*)h_scintBack_vs_calo; 
+  outObjects[TString("CORRSCINTCALO_")+TString(h_scintBack_vs_calo->GetName())]=(TObject*)h_scintBack_vs_calo; 
 
   //Stability plots (1 point every 5 minutes)
   TH1F* h_nTriggersTimeProfile;
   h_nTriggersTimeProfile=new TH1F("nTriggersTimeProfile","nTriggersTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_nTriggersTimeProfile->GetName())]=(TObject*)h_nTriggersTimeProfile; 
+  outObjects[TString("TIMEPROFILETRIG_")+TString(h_nTriggersTimeProfile->GetName())]=(TObject*)h_nTriggersTimeProfile; 
 
   TH1F* h_rateTimeProfile;
   h_rateTimeProfile=new TH1F("rateTimeProfile","rateTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_rateTimeProfile->GetName())]=(TObject*)h_rateTimeProfile; 
+  outObjects[TString("TIMEPROFILETRIG_")+TString(h_rateTimeProfile->GetName())]=(TObject*)h_rateTimeProfile; 
 
 
   TH1F* h_bgoEnergyTimeProfile;
   h_bgoEnergyTimeProfile=new TH1F("bgoEnergyTimeProfile","bgoEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_bgoEnergyTimeProfile->GetName())]=(TObject*)h_bgoEnergyTimeProfile; 
+  outObjects[TString("TIMEPROFILECALO_")+TString(h_bgoEnergyTimeProfile->GetName())]=(TObject*)h_bgoEnergyTimeProfile; 
 
   TH1F* h_cef3EnergyTimeProfile;
   h_cef3EnergyTimeProfile=new TH1F("cef3EnergyTimeProfile","cef3EnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_cef3EnergyTimeProfile->GetName())]=(TObject*)h_cef3EnergyTimeProfile; 
+  outObjects[TString("TIMEPROFILECALO_")+TString(h_cef3EnergyTimeProfile->GetName())]=(TObject*)h_cef3EnergyTimeProfile; 
 
   TH1F* h_caloEnergyTimeProfile;
   h_caloEnergyTimeProfile=new TH1F("caloEnergyTimeProfile","caloEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_caloEnergyTimeProfile->GetName())]=(TObject*)h_caloEnergyTimeProfile; 
+  outObjects[TString("TIMEPROFILECALO_")+TString(h_caloEnergyTimeProfile->GetName())]=(TObject*)h_caloEnergyTimeProfile; 
 
   TH1F* h_hodoXEnergyTimeProfile;
   h_hodoXEnergyTimeProfile=new TH1F("hodoXEnergyTimeProfile","hodoXEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_hodoXEnergyTimeProfile->GetName())]=(TObject*)h_hodoXEnergyTimeProfile; 
+  outObjects[TString("TIMEPROFILEHODO_")+TString(h_hodoXEnergyTimeProfile->GetName())]=(TObject*)h_hodoXEnergyTimeProfile; 
 
   TH1F* h_hodoXPosTimeProfile;
   h_hodoXPosTimeProfile=new TH1F("hodoXPosTimeProfile","hodoXPosTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_hodoXPosTimeProfile->GetName())]=(TObject*)h_hodoXPosTimeProfile; 
+  outObjects[TString("TIMEPROFILEHODO_")+TString(h_hodoXPosTimeProfile->GetName())]=(TObject*)h_hodoXPosTimeProfile; 
 
   TH1F* h_hodoYEnergyTimeProfile;
   h_hodoYEnergyTimeProfile=new TH1F("hodoYEnergyTimeProfile","hodoYEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_hodoYEnergyTimeProfile->GetName())]=(TObject*)h_hodoYEnergyTimeProfile; 
+  outObjects[TString("TIMEPROFILEHODO_")+TString(h_hodoYEnergyTimeProfile->GetName())]=(TObject*)h_hodoYEnergyTimeProfile; 
 
   TH1F* h_hodoYPosTimeProfile;
   h_hodoYPosTimeProfile=new TH1F("hodoYPosTimeProfile","hodoYPosTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_hodoYPosTimeProfile->GetName())]=(TObject*)h_hodoYPosTimeProfile; 
+  outObjects[TString("TIMEPROFILEHODO_")+TString(h_hodoYPosTimeProfile->GetName())]=(TObject*)h_hodoYPosTimeProfile; 
 
   TH1F* h_centerXTaggerEnergyTimeProfile;
   h_centerXTaggerEnergyTimeProfile=new TH1F("centerXTaggerEnergyTimeProfile","centerXTaggerEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_centerXTaggerEnergyTimeProfile->GetName())]=(TObject*)h_centerXTaggerEnergyTimeProfile; 
+  outObjects[TString("TIMEPROFILECENTERTAGGER_")+TString(h_centerXTaggerEnergyTimeProfile->GetName())]=(TObject*)h_centerXTaggerEnergyTimeProfile; 
 
   TH1F* h_centerYTaggerEnergyTimeProfile;
   h_centerYTaggerEnergyTimeProfile=new TH1F("centerYTaggerEnergyTimeProfile","centerYTaggerEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_centerYTaggerEnergyTimeProfile->GetName())]=(TObject*)h_centerYTaggerEnergyTimeProfile; 
+  outObjects[TString("TIMEPROFILECENTERTAGGER_")+TString(h_centerYTaggerEnergyTimeProfile->GetName())]=(TObject*)h_centerYTaggerEnergyTimeProfile; 
 
   TH1F* h_scintFrontEnergyTimeProfile;
   h_scintFrontEnergyTimeProfile=new TH1F("scintFrontEnergyTimeProfile","scintFrontEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_scintFrontEnergyTimeProfile->GetName())]=(TObject*)h_scintFrontEnergyTimeProfile; 
+  outObjects[TString("TIMEPROFILESCINT_")+TString(h_scintFrontEnergyTimeProfile->GetName())]=(TObject*)h_scintFrontEnergyTimeProfile; 
 
   TH1F* h_scintBackEnergyTimeProfile;
   h_scintBackEnergyTimeProfile=new TH1F("scintBackEnergyTimeProfile","scintBackEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
-  outObjects[TString("TIMEPROFILE_")+TString(h_scintBackEnergyTimeProfile->GetName())]=(TObject*)h_scintBackEnergyTimeProfile; 
+  outObjects[TString("TIMEPROFILESCINT_")+TString(h_scintBackEnergyTimeProfile->GetName())]=(TObject*)h_scintBackEnergyTimeProfile; 
 
 
   std::cout << "==================== Booked histograms =======================" << std::endl;

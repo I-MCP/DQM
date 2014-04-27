@@ -32,10 +32,10 @@ if (not file.IsOpen()):
 tree = file.Get("eventRawData")
 os.system('mkdir -p %s'%options.outputDir)
 a=r.fastDQM_CeF3_BTF(tree)
-a.outFile=options.outputDir+"/"+path_leaf(options.inputFile)+"_dqmPlots.root"
+a.outFile=options.outputDir+"/"+os.path.splitext(path_leaf(options.inputFile))[0]+"_dqmPlots.root"
 a.Loop()
 
-outFile = r.TFile.Open(options.outputDir+"/"+path_leaf(options.inputFile)+"_dqmPlots.root")
+outFile = r.TFile.Open(a.outFile)
 
 if (not outFile.IsOpen()):
     print "Cannot open "+ options.inputFile
@@ -49,13 +49,28 @@ for key in outFile.GetListOfKeys():
         if type not in types.keys():
             types[type]=[]
         types[type].append(name)
-#print types
+print types
 
-os.system('mkdir -p %s'%options.plotsDir)
-#c=r.TCanvas("c","c",1500,900)
-#c.Divide(8,4,0,0)
-#for i in range(1,33):
-#    c.cd(i)
-#    outFile.Get("ADC_adcSpectra_%d"%(i-1)).Draw()
-#c.SaveAs(options.outputFile+".png")
-#    
+plotDir='%s/%s'%(options.plotsDir,os.path.splitext(path_leaf(options.inputFile))[0])
+os.system('mkdir -p %s'%plotDir)
+for t in types:
+    c=r.TCanvas(str(t),str(t),1500,1000)
+    if len(types[t])<3:
+        c.Divide(1,2,0,0)
+    elif len(types[t])<5:
+        c.Divide(2,2,0,0)
+    elif len(types[t])<7:
+        c.Divide(2,3,0,0)
+    elif len(types[t])<10:
+        c.Divide(3,3,0,0)
+    else:
+        c.Divide(4,4,0,0)
+        
+    for i in range(1,len(types[t])+1):
+        c.cd(i)
+        r.gPad.SetBottomMargin(1.2)
+        r.gPad.SetLeftMargin(1.2)
+        r.gPad.SetRightMargin(1.2)
+        outFile.Get(types[t][i-1]).Draw()
+    c.SaveAs("%s/%s.png"%(plotDir,str(t)))
+    
