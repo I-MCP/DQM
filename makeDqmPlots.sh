@@ -10,6 +10,9 @@ fi
 runFile=$1
 runName=`basename $runFile`
 
-echo $runFile ${runName%%.*}.root
-bin/readBinary -f $1 -o ${runName%%.*}.root
-./makeDqmPlots.py -i  ${runName%%.*}.root -o dqmOut -p dqmPlots
+mkdir -p dataTree
+mkdir -p log
+
+echo "Running DQM analysis on $runFile"
+bin/readBinary -f $1 -o dataTree/${runName%%.*}.root 2>&1 > log/convertRawData_${runName%%.*}.log 
+./makeDqmPlots.py -i dataTree/${runName%%.*}.root -o dqmOut -p dqmPlots 2>&1 > log/dqmAnalysis_${runName%%.*}.log 

@@ -212,10 +212,23 @@ void fastDQM_CeF3_BTF::Loop()
    Long64_t nentries = fChain->GetEntriesFast();
 
    Long64_t nbytes = 0, nb = 0;
+
+   unsigned int startTimeStamp=0;
+
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (jentry%1000==0)
 	std::cout << "Analysing event " << jentry << std::endl;
+
+      if (jentry==0)
+	{
+	  startTimeStamp=evtTime;
+	  std::cout << "First event taken @ timestamp (msec from 01/04/2014)" <<  startTimeStamp << std::endl;
+	}
+      if (startTimeStamp!=0)
+	std::cout << evtTime - startTimeStamp << std::endl;
+
+
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       float bgoEnergy=0,bgoLeftEnergy=0,bgoRightEnergy=0,bgoUpEnergy=0,bgoDownEnergy=0,

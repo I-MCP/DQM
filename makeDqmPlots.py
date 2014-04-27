@@ -4,6 +4,11 @@ import sys
 import os
 from array import *
 
+import ntpath
+def path_leaf(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
+
 from optparse import OptionParser
 parser=OptionParser()
 parser.add_option("-i","--inputFile")
@@ -27,10 +32,10 @@ if (not file.IsOpen()):
 tree = file.Get("eventRawData")
 os.system('mkdir -p %s'%options.outputDir)
 a=r.fastDQM_CeF3_BTF(tree)
-a.outFile=options.outputDir+"/"+options.inputFile+"_dqmPlots.root"
+a.outFile=options.outputDir+"/"+path_leaf(options.inputFile)+"_dqmPlots.root"
 a.Loop()
 
-outFile = r.TFile.Open(options.outputDir+"/"+options.inputFile+"_dqmPlots.root")
+outFile = r.TFile.Open(options.outputDir+"/"+path_leaf(options.inputFile)+"_dqmPlots.root")
 
 if (not outFile.IsOpen()):
     print "Cannot open "+ options.inputFile
