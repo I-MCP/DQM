@@ -12,4 +12,4 @@ runName=`basename $runFile`
 
 echo $runFile ${runName%%.*}.root
 bin/readBinary -f $1 -o ${runName%%.*}.root
-./makeDqmPlots.py -i  ${runName%%.*}.root -o dqmOut
+./makeDqmPlots.py -i  ${runName%%.*}.root -o dqmOut -p dqmPlots

@@ -296,6 +296,59 @@ void fastDQM_CeF3_BTF::Loop()
       h_scintBack_vs_calo->Fill(caloEnergy,scintBackEnergy);
    }
 
+   //Fill profile histograms
+   for (unsigned int i(0); i<BGO_CHANNELS;++i)
+     {
+       float mean=h_bgoRawSpectrum[i]->GetMean();
+       float rms=h_bgoRawSpectrum[i]->GetRMS();
+       h_bgoEnergyProfile->SetBinContent(i+1,mean);
+       h_bgoEnergyProfile->SetBinError(i+1,rms);
+     }
+
+
+   for (unsigned int i(0); i<CEF3_CHANNELS;++i)
+     {
+       float mean=h_cef3RawSpectrum[i]->GetMean();
+       float rms=h_cef3RawSpectrum[i]->GetRMS();
+       h_cef3EnergyProfile->SetBinContent(i+1,mean);
+       h_cef3EnergyProfile->SetBinError(i+1,rms);
+     }
+
+   for (unsigned int i(0); i<HODOX_CHANNELS;++i)
+     {
+       float mean=h_hodoXRawSpectrum[i]->GetMean();
+       float rms=h_hodoXRawSpectrum[i]->GetRMS();
+       h_hodoXEnergyProfile->SetBinContent(i+1,mean);
+       h_hodoXEnergyProfile->SetBinError(i+1,rms);
+     }
+
+
+   for (unsigned int i(0); i<HODOY_CHANNELS;++i)
+     {
+       float mean=h_hodoYRawSpectrum[i]->GetMean();
+       float rms=h_hodoYRawSpectrum[i]->GetRMS();
+       h_hodoYEnergyProfile->SetBinContent(i+1,mean);
+       h_hodoYEnergyProfile->SetBinError(i+1,rms);
+     }
+
+
+   for (unsigned int i(0); i<CENTERX_TAGGER_CHANNELS;++i)
+     {
+       float mean=h_centerXTaggerRawSpectrum[i]->GetMean();
+       float rms=h_centerXTaggerRawSpectrum[i]->GetRMS();
+       h_centerXTaggerEnergyProfile->SetBinContent(i+1,mean);
+       h_centerXTaggerEnergyProfile->SetBinError(i+1,rms);
+     }
+
+
+   for (unsigned int i(0); i<CENTERY_TAGGER_CHANNELS;++i)
+     {
+       float mean=h_centerYTaggerRawSpectrum[i]->GetMean();
+       float rms=h_centerYTaggerRawSpectrum[i]->GetRMS();
+       h_centerYTaggerEnergyProfile->SetBinContent(i+1,mean);
+       h_centerYTaggerEnergyProfile->SetBinError(i+1,rms);
+     }
+
    TFile *fOut=new TFile(outFile.c_str(),"RECREATE");
    if (!fOut || !fOut->IsOpen()) {
      std::cout << "outFile " << outFile << " cannot be  opened. Giving up" << std::endl;

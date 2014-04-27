@@ -8,6 +8,7 @@ from optparse import OptionParser
 parser=OptionParser()
 parser.add_option("-i","--inputFile")
 parser.add_option("-o","--outputDir")
+parser.add_option("-p","--plotsDir")
 
 (options,args)=parser.parse_args()
 import ROOT as r
@@ -45,6 +46,7 @@ for key in outFile.GetListOfKeys():
         types[type].append(name)
 #print types
 
+os.system('mkdir -p %s'%options.plotsDir)
 #c=r.TCanvas("c","c",1500,900)
 #c.Divide(8,4,0,0)
 #for i in range(1,33):
