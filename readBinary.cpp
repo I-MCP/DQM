@@ -221,6 +221,7 @@ int main(int argc, char *argv[])
 	      myFile.read ((char*)&adcRawData, sizeof(adcRawData));
 	      //FOR ADC265 DATA
 	      adcData thisData;
+	      //ADC265 -> adcBoard 0
 	      thisData.board=0; 
 	      //These bit masks are valid for the ADC V265
 	      thisData.channel = (adcRawData & 0xe000)>>13;
@@ -240,6 +241,7 @@ int main(int argc, char *argv[])
 	      //FOR ADC792 DATA
 	      adcData thisData;
 	      
+	      //ADC792 -> adcBoard 1
 	      thisData.board=1; 
 	      thisData.channel = adcRawData>>16 & 0x1F;
 	      thisData.adcReadout = adcRawData & 0xFFF;
