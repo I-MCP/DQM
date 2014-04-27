@@ -3,6 +3,7 @@
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
+#include <TMath.h>
 
 #include <iostream>
 
@@ -15,6 +16,67 @@ float hodoYIntercalibration[HODOY_CHANNELS] = { 1., 1., 1., 1., 1., 1., 1., 1.};
 
 float centerXTaggerIntercalibration[CENTERX_TAGGER_CHANNELS] = { 1., 1.};
 float centerYTaggerIntercalibration[CENTERY_TAGGER_CHANNELS] = { 1.};
+
+
+// 24h hours 5min intervals
+#define TIME_MAX_INTERVALS 248  
+
+// A simple struct to simplify time average code
+struct timeAverage
+{
+  float timeAverage_array[TIME_MAX_INTERVALS];
+  float timeRms_array[TIME_MAX_INTERVALS];
+  unsigned int   nMeasures_per_interval[TIME_MAX_INTERVALS];
+  
+  timeAverage()
+  {
+    for (unsigned int i(0);i<TIME_MAX_INTERVALS;++i)
+      {
+	timeAverage_array[i]=0;
+	timeRms_array[i]=0;
+	nMeasures_per_interval[i]=0;
+      }
+  }
+
+  void addMeasure(unsigned int interval, float value)
+  {
+    if (interval<TIME_MAX_INTERVALS)
+      {
+	timeAverage_array[interval]+=value;
+	timeRms_array[interval]+=value*value;
+	nMeasures_per_interval[interval]++;
+      }
+    else
+      {
+	std::cout << "ERROR! Adding measurement at time " << interval << " which is outside the TIME_MAX_INTERVALS" << std::endl;
+      }
+  }
+
+  void calculateAverages()
+  {
+    for(unsigned int i(0);i<TIME_MAX_INTERVALS;++i)
+      {
+	if (nMeasures_per_interval[i]>0)
+	  {
+	    timeAverage_array[i]=timeAverage_array[i]/(float)nMeasures_per_interval[i];
+	    timeRms_array[i]=TMath::Sqrt((timeRms_array[i]/(float)nMeasures_per_interval[i])-timeAverage_array[i]*timeAverage_array[i]);
+	  }
+      }
+  }
+};
+
+void fillTimeProfile(const timeAverage& timeAvg, TH1F* timeProfile)
+{
+  for (unsigned int i(0);i<TIME_MAX_INTERVALS;++i)
+    {
+      if (timeAvg.nMeasures_per_interval[i]==0)
+	continue;
+
+      std::cout << i << "," << timeAvg.timeAverage_array[i] << "," << timeAvg.timeRms_array[i] << std::endl;
+      timeProfile->SetBinContent(i+1,timeAvg.timeAverage_array[i]);
+      timeProfile->SetBinError(i+1,timeAvg.timeRms_array[i]);
+    }
+}
 
 void fastDQM_CeF3_BTF::Loop()
 {
@@ -43,6 +105,10 @@ void fastDQM_CeF3_BTF::Loop()
 //by  b_branchname->GetEntry(ientry); //read only this branch
 
 
+  float nTriggers[TIME_MAX_INTERVALS];
+  for (unsigned int i(0);i<TIME_MAX_INTERVALS;++i)
+    nTriggers[i]=0;
+
   //BGO histograms
   TH1F* h_bgoRawSpectrum[BGO_CHANNELS];
   for (int i=0;i<BGO_CHANNELS;++i)
@@ -54,6 +120,8 @@ void fastDQM_CeF3_BTF::Loop()
   TH1F* h_bgoEnergy;
   h_bgoEnergy=new TH1F("bgoEnergy","bgoEnergy",4096,-0.5,4095.5);
   outObjects[TString("ADC_")+TString(h_bgoEnergy->GetName())]=(TObject*)h_bgoEnergy; 
+
+  timeAverage bgoEnergy_TimeAverage;
 
   TH1F* h_bgoEnergyProfile;
   h_bgoEnergyProfile=new TH1F("bgoEnergyProfile","bgoEnergyProfile",BGO_CHANNELS,-0.5,BGO_CHANNELS-0.5);
@@ -83,6 +151,8 @@ void fastDQM_CeF3_BTF::Loop()
       outObjects[TString("ADC_")+TString(h_cef3RawSpectrum[i]->GetName())]=(TObject*)h_cef3RawSpectrum[i]; 
     }
 
+  timeAverage cef3Energy_TimeAverage;
+
   TH1F* h_cef3Energy;
   h_cef3Energy=new TH1F("cef3Energy","cef3Energy",4096,-0.5,4095.5);
   outObjects[TString("ADC_")+TString(h_cef3Energy->GetName())]=(TObject*)h_cef3Energy; 
@@ -96,6 +166,8 @@ void fastDQM_CeF3_BTF::Loop()
   h_caloEnergy=new TH1F("caloEnergy","caloEnergy",4096,-0.5,4095.5);
   outObjects[TString("ADC_")+TString(h_caloEnergy->GetName())]=(TObject*)h_caloEnergy; 
 
+  timeAverage caloEnergy_TimeAverage;
+
   //HodoX histograms
   TH1F* h_hodoXRawSpectrum[HODOX_CHANNELS];
   for (int i=0;i<HODOX_CHANNELS;++i)
@@ -107,6 +179,9 @@ void fastDQM_CeF3_BTF::Loop()
   TH1F* h_hodoXEnergy;
   h_hodoXEnergy=new TH1F("hodoXEnergy","hodoXEnergy",4096,-0.5,4095.5);
   outObjects[TString("ADC_")+TString(h_hodoXEnergy->GetName())]=(TObject*)h_hodoXEnergy; 
+
+  timeAverage hodoXEnergy_TimeAverage;
+  timeAverage hodoXPos_TimeAverage;
 
   TH1F* h_hodoXEnergyProfile;
   h_hodoXEnergyProfile=new TH1F("hodoXEnergyProfile","hodoXEnergyProfile",HODOX_CHANNELS,-0.5,HODOX_CHANNELS-0.5);
@@ -124,6 +199,9 @@ void fastDQM_CeF3_BTF::Loop()
   h_hodoYEnergy=new TH1F("hodoYEnergy","hodoYEnergy",4096,-0.5,4095.5);
   outObjects[TString("ADC_")+TString(h_hodoYEnergy->GetName())]=(TObject*)h_hodoYEnergy; 
 
+  timeAverage hodoYEnergy_TimeAverage;
+  timeAverage hodoYPos_TimeAverage;
+
   TH1F* h_hodoYEnergyProfile;
   h_hodoYEnergyProfile=new TH1F("hodoYEnergyProfile","hodoYEnergyProfile",HODOY_CHANNELS,-0.5,HODOY_CHANNELS-0.5);
   outObjects[TString("ADC_")+TString(h_hodoYEnergyProfile->GetName())]=(TObject*)h_hodoYEnergyProfile; 
@@ -139,6 +217,8 @@ void fastDQM_CeF3_BTF::Loop()
   TH1F* h_centerXTaggerEnergy;
   h_centerXTaggerEnergy=new TH1F("centerXTaggerEnergy","centerXTaggerEnergy",4096,-0.5,4095.5);
   outObjects[TString("ADC_")+TString(h_centerXTaggerEnergy->GetName())]=(TObject*)h_centerXTaggerEnergy; 
+
+  timeAverage centerXTaggerEnergy_TimeAverage;
 
   TH1F* h_centerXTaggerEnergyProfile;
   h_centerXTaggerEnergyProfile=new TH1F("centerXTaggerEnergyProfile","centerXTaggerEnergyProfile",CENTERX_TAGGER_CHANNELS,-0.5,CENTERX_TAGGER_CHANNELS-0.5);
@@ -156,6 +236,8 @@ void fastDQM_CeF3_BTF::Loop()
   h_centerYTaggerEnergy=new TH1F("centerYTaggerEnergy","centerYTaggerEnergy",4096,-0.5,4095.5);
   outObjects[TString("ADC_")+TString(h_centerYTaggerEnergy->GetName())]=(TObject*)h_centerYTaggerEnergy; 
 
+  timeAverage centerYTaggerEnergy_TimeAverage;
+
   TH1F* h_centerYTaggerEnergyProfile;
   h_centerYTaggerEnergyProfile=new TH1F("centerYTaggerEnergyProfile","centerYTaggerEnergyProfile",CENTERY_TAGGER_CHANNELS,-0.5,CENTERY_TAGGER_CHANNELS-0.5);
   outObjects[TString("ADC_")+TString(h_centerYTaggerEnergyProfile->GetName())]=(TObject*)h_centerYTaggerEnergyProfile; 
@@ -165,9 +247,12 @@ void fastDQM_CeF3_BTF::Loop()
   h_scintFrontRawSpectrum=new TH1F("scintFrontRawSpectrum","scintFrontRawSpectrum",4096,-0.5,4095.5);
   outObjects[TString("ADC_")+TString(h_scintFrontRawSpectrum->GetName())]=(TObject*)h_scintFrontRawSpectrum; 
 
+  timeAverage scintFrontEnergy_TimeAverage;
+
   TH1F* h_scintBackRawSpectrum;
   h_scintBackRawSpectrum=new TH1F("scintBackRawSpectrum","scintBackRawSpectrum",4096,-0.5,4095.5);
   outObjects[TString("ADC_")+TString(h_scintBackRawSpectrum->GetName())]=(TObject*)h_scintBackRawSpectrum; 
+  timeAverage scintBackEnergy_TimeAverage;
 
   //Correlation plots
   TH2F* h_bgo_vs_cef3;
@@ -199,6 +284,49 @@ void fastDQM_CeF3_BTF::Loop()
   outObjects[TString("ADC_")+TString(h_scintBack_vs_calo->GetName())]=(TObject*)h_scintBack_vs_calo; 
 
   //Stability plots (1 point every 5 minutes)
+  TH1F* h_bgoEnergyTimeProfile;
+  h_bgoEnergyTimeProfile=new TH1F("bgoEnergyTimeProfile","bgoEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_bgoEnergyTimeProfile->GetName())]=(TObject*)h_bgoEnergyTimeProfile; 
+
+  TH1F* h_cef3EnergyTimeProfile;
+  h_cef3EnergyTimeProfile=new TH1F("cef3EnergyTimeProfile","cef3EnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_cef3EnergyTimeProfile->GetName())]=(TObject*)h_cef3EnergyTimeProfile; 
+
+  TH1F* h_caloEnergyTimeProfile;
+  h_caloEnergyTimeProfile=new TH1F("caloEnergyTimeProfile","caloEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_caloEnergyTimeProfile->GetName())]=(TObject*)h_caloEnergyTimeProfile; 
+
+  TH1F* h_hodoXEnergyTimeProfile;
+  h_hodoXEnergyTimeProfile=new TH1F("hodoXEnergyTimeProfile","hodoXEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_hodoXEnergyTimeProfile->GetName())]=(TObject*)h_hodoXEnergyTimeProfile; 
+
+  TH1F* h_hodoXPosTimeProfile;
+  h_hodoXPosTimeProfile=new TH1F("hodoXPosTimeProfile","hodoXPosTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_hodoXPosTimeProfile->GetName())]=(TObject*)h_hodoXPosTimeProfile; 
+
+  TH1F* h_hodoYEnergyTimeProfile;
+  h_hodoYEnergyTimeProfile=new TH1F("hodoYEnergyTimeProfile","hodoYEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_hodoYEnergyTimeProfile->GetName())]=(TObject*)h_hodoYEnergyTimeProfile; 
+
+  TH1F* h_hodoYPosTimeProfile;
+  h_hodoYPosTimeProfile=new TH1F("hodoYPosTimeProfile","hodoYPosTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_hodoYPosTimeProfile->GetName())]=(TObject*)h_hodoYPosTimeProfile; 
+
+  TH1F* h_centerXTaggerEnergyTimeProfile;
+  h_centerXTaggerEnergyTimeProfile=new TH1F("centerXTaggerEnergyTimeProfile","centerXTaggerEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_centerXTaggerEnergyTimeProfile->GetName())]=(TObject*)h_centerXTaggerEnergyTimeProfile; 
+
+  TH1F* h_centerYTaggerEnergyTimeProfile;
+  h_centerYTaggerEnergyTimeProfile=new TH1F("centerYTaggerEnergyTimeProfile","centerYTaggerEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_centerYTaggerEnergyTimeProfile->GetName())]=(TObject*)h_centerYTaggerEnergyTimeProfile; 
+
+  TH1F* h_scintFrontEnergyTimeProfile;
+  h_scintFrontEnergyTimeProfile=new TH1F("scintFrontEnergyTimeProfile","scintFrontEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_scintFrontEnergyTimeProfile->GetName())]=(TObject*)h_scintFrontEnergyTimeProfile; 
+
+  TH1F* h_scintBackEnergyTimeProfile;
+  h_scintBackEnergyTimeProfile=new TH1F("scintBackEnergyTimeProfile","scintBackEnergyTimeProfile",TIME_MAX_INTERVALS,-0.5,TIME_MAX_INTERVALS-0.5);
+  outObjects[TString("ADC_")+TString(h_scintBackEnergyTimeProfile->GetName())]=(TObject*)h_scintBackEnergyTimeProfile; 
 
 
   std::cout << "==================== Booked histograms =======================" << std::endl;
@@ -216,21 +344,29 @@ void fastDQM_CeF3_BTF::Loop()
    unsigned int startTimeStamp=0;
 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
+
       Long64_t ientry = LoadTree(jentry);
       if (jentry%1000==0)
 	std::cout << "Analysing event " << jentry << std::endl;
 
+      if (ientry < 0) break;
+
+      nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+      unsigned int itime=0;
+
       if (jentry==0)
 	{
 	  startTimeStamp=evtTime;
-	  std::cout << "First event taken @ timestamp (msec from 01/04/2014)" <<  startTimeStamp << std::endl;
+	  std::cout << "First event taken @ timestamp (days from 01/04/2014) " <<  ((float)startTimeStamp/1000.)/86400. << std::endl;
 	}
-      if (startTimeStamp!=0)
-	std::cout << evtTime - startTimeStamp << std::endl;
+
+      if (startTimeStamp>0 && evtTime>0)
+	itime=(evtTime-startTimeStamp)/(5*60*1000); //binning time 5minutes interval (expect of the order od 25Hz*60*5 triggers in this range)
 
 
-      if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);   nbytes += nb;
+      nTriggers[itime]++;
+
       float bgoEnergy=0,bgoLeftEnergy=0,bgoRightEnergy=0,bgoUpEnergy=0,bgoDownEnergy=0,
 	cef3Energy=0,caloEnergy=0,
 	hodoXEnergy=0,hodoYEnergy=0,centerXTaggerEnergy=0,centerYTaggerEnergy=0,scintFrontEnergy=0,scintBackEnergy=0;
@@ -238,6 +374,9 @@ void fastDQM_CeF3_BTF::Loop()
       //Loop over adc channels
       for (int i=0;i<NUM_ADC_CHANNELS;++i)
 	{
+	  if (adcData[i]<0 || adcData[i]>4095)
+	    std::cout << "WARNING ADC value outside ADC 12bit range!" << std::endl;
+
 	  if (adcBoard[i]==BGO_ADC_BOARD && (adcChannel[i]>=BGO_ADC_START_CHANNEL && adcChannel[i]<=BGO_ADC_END_CHANNEL) )
 	    {
 	      bgoEnergy+=adcData[i]*bgoIntercalibration[adcChannel[i]-BGO_ADC_START_CHANNEL];
@@ -290,6 +429,7 @@ void fastDQM_CeF3_BTF::Loop()
 	}
 
       caloEnergy=bgoEnergy+cef3Energy;
+
       //Fill energy plots
       h_bgoEnergy->Fill(bgoEnergy);
       h_cef3Energy->Fill(cef3Energy);
@@ -298,6 +438,17 @@ void fastDQM_CeF3_BTF::Loop()
       h_hodoYEnergy->Fill(hodoYEnergy);
       h_centerXTaggerEnergy->Fill(centerXTaggerEnergy);
       h_centerYTaggerEnergy->Fill(centerYTaggerEnergy);
+
+      //Fill time averages
+      bgoEnergy_TimeAverage.addMeasure(itime,bgoEnergy);
+      cef3Energy_TimeAverage.addMeasure(itime,cef3Energy);
+      caloEnergy_TimeAverage.addMeasure(itime,caloEnergy);
+      hodoXEnergy_TimeAverage.addMeasure(itime,hodoXEnergy);
+      hodoYEnergy_TimeAverage.addMeasure(itime,hodoYEnergy);
+      centerXTaggerEnergy_TimeAverage.addMeasure(itime,centerXTaggerEnergy);
+      centerYTaggerEnergy_TimeAverage.addMeasure(itime,centerYTaggerEnergy);
+      scintFrontEnergy_TimeAverage.addMeasure(itime,scintFrontEnergy);
+      scintBackEnergy_TimeAverage.addMeasure(itime,scintBackEnergy);
 
       //Fill correlation plots
       h_bgo_vs_cef3->Fill(cef3Energy,bgoEnergy);
@@ -361,6 +512,18 @@ void fastDQM_CeF3_BTF::Loop()
        h_centerYTaggerEnergyProfile->SetBinContent(i+1,mean);
        h_centerYTaggerEnergyProfile->SetBinError(i+1,rms);
      }
+
+   //Calculate & fill time profile histograms
+   bgoEnergy_TimeAverage.calculateAverages();
+   fillTimeProfile(bgoEnergy_TimeAverage,h_bgoEnergyTimeProfile);
+   cef3Energy_TimeAverage.calculateAverages();
+   fillTimeProfile(cef3Energy_TimeAverage,h_cef3EnergyTimeProfile);
+   caloEnergy_TimeAverage.calculateAverages();
+   fillTimeProfile(caloEnergy_TimeAverage,h_caloEnergyTimeProfile);
+   hodoXEnergy_TimeAverage.calculateAverages();
+   fillTimeProfile(hodoXEnergy_TimeAverage,h_hodoXEnergyTimeProfile);
+
+
 
    TFile *fOut=new TFile(outFile.c_str(),"RECREATE");
    if (!fOut || !fOut->IsOpen()) {
