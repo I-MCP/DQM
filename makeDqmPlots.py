@@ -53,6 +53,7 @@ print types
 
 plotDir='%s/%s'%(options.plotsDir,os.path.splitext(path_leaf(options.inputFile))[0])
 os.system('mkdir -p %s'%plotDir)
+os.system('cp index.php %s'%plotDir)
 for t in types:
     c=r.TCanvas(str(t),str(t),1500,1000)
     if len(types[t])<3:
