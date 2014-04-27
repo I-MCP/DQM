@@ -17,10 +17,31 @@ float hodoYIntercalibration[HODOY_CHANNELS] = { 1., 1., 1., 1., 1., 1., 1., 1.};
 float centerXTaggerIntercalibration[CENTERX_TAGGER_CHANNELS] = { 1., 1.};
 float centerYTaggerIntercalibration[CENTERY_TAGGER_CHANNELS] = { 1.};
 
+// These channel numbers HAVE TO BE CHECKED! Left is defined looking at the matrix from the beam side
+bool isInBGOUpRow(int bgoChannel)
+{
+  return (bgoChannel==0 || bgoChannel==1 ||bgoChannel==2);
+}
+
+bool isInBGODownRow(int bgoChannel)
+{
+  return (bgoChannel==6 || bgoChannel==7 ||bgoChannel==8);
+}
+
+bool isInBGORightRow(int bgoChannel)
+{
+  return (bgoChannel==0 || bgoChannel==3 ||bgoChannel==5);
+}
+
+bool isInBGOLeftRow(int bgoChannel)
+{
+  return (bgoChannel==2 || bgoChannel==4 ||bgoChannel==7);
+}
 
 // 24h hours 5min intervals
 #define TIME_MAX_INTERVALS 248  
 #define TIME_INTERVAL_SIZE 5*60*1000 //interval size is 5min expressed in msec 
+
 // A simple struct to simplify time average code
 struct timeAverage
 {
@@ -115,7 +136,7 @@ void fastDQM_CeF3_BTF::Loop()
   for (int i=0;i<BGO_CHANNELS;++i)
     {
       h_bgoRawSpectrum[i]=new TH1F(Form("bgoRawSpectrum_%d",i),Form("bgoRawSpectrum_%d",i),4096,-0.5,4095.5);
-      outObjects[TString("BGO_")+TString(h_bgoRawSpectrum[i]->GetName())]=(TObject*)h_bgoRawSpectrum[i]; 
+      outObjects[TString("BGORAW_")+TString(h_bgoRawSpectrum[i]->GetName())]=(TObject*)h_bgoRawSpectrum[i]; 
     }
 
   TH1F* h_bgoEnergy;
@@ -149,7 +170,7 @@ void fastDQM_CeF3_BTF::Loop()
   for (int i=0;i<CEF3_CHANNELS;++i)
     {
       h_cef3RawSpectrum[i]=new TH1F(Form("cef3RawSpectrum_%d",i),Form("cef3RawSpectrum_%d",i),4096,-0.5,4095.5);
-      outObjects[TString("CEF3_")+TString(h_cef3RawSpectrum[i]->GetName())]=(TObject*)h_cef3RawSpectrum[i]; 
+      outObjects[TString("CEF3RAW_")+TString(h_cef3RawSpectrum[i]->GetName())]=(TObject*)h_cef3RawSpectrum[i]; 
     }
 
   timeAverage cef3Energy_TimeAverage;
@@ -174,7 +195,7 @@ void fastDQM_CeF3_BTF::Loop()
   for (int i=0;i<HODOX_CHANNELS;++i)
     {
       h_hodoXRawSpectrum[i]=new TH1F(Form("hodoXRawSpectrum_%d",i),Form("hodoXRawSpectrum_%d",i),4096,-0.5,4095.5);
-      outObjects[TString("HODO_")+TString(h_hodoXRawSpectrum[i]->GetName())]=(TObject*)h_hodoXRawSpectrum[i]; 
+      outObjects[TString("HODOXRAW_")+TString(h_hodoXRawSpectrum[i]->GetName())]=(TObject*)h_hodoXRawSpectrum[i]; 
     }
 
   TH1F* h_hodoXEnergy;
@@ -197,7 +218,7 @@ void fastDQM_CeF3_BTF::Loop()
   for (int i=0;i<HODOY_CHANNELS;++i)
     {
       h_hodoYRawSpectrum[i]=new TH1F(Form("hodoYRawSpectrum_%d",i),Form("hodoYRawSpectrum_%d",i),4096,-0.5,4095.5);
-      outObjects[TString("HODO_")+TString(h_hodoYRawSpectrum[i]->GetName())]=(TObject*)h_hodoYRawSpectrum[i]; 
+      outObjects[TString("HODOYRAW_")+TString(h_hodoYRawSpectrum[i]->GetName())]=(TObject*)h_hodoYRawSpectrum[i]; 
     }
 
   TH1F* h_hodoYEnergy;
@@ -272,9 +293,17 @@ void fastDQM_CeF3_BTF::Loop()
   h_hodoX_vs_calo=new TH2F("hodoX_vs_calo","hodoX_vs_calo",4096,-0.5,4095.5,4096,-0.5,4095.5);
   outObjects[TString("CORR_")+TString(h_hodoX_vs_calo->GetName())]=(TObject*)h_hodoX_vs_calo; 
 
+  TH2F* h_hodoXPos_vs_bgoLRAsymm;
+  h_hodoXPos_vs_bgoLRAsymm=new TH2F("hodoX_vs_bgoLRAsymm","hodoXPos_vs_bgoLRAsymm",200,-1.,1.,200,0.,HODOX_CHANNELS);
+  outObjects[TString("HODO_")+TString(h_hodoXPos_vs_bgoLRAsymm->GetName())]=(TObject*)h_hodoXPos_vs_bgoLRAsymm; 
+
   TH2F* h_hodoY_vs_calo;
   h_hodoY_vs_calo=new TH2F("hodoY_vs_calo","hodoY_vs_calo",4096,-0.5,4095.5,4096,-0.5,4095.5);
   outObjects[TString("CORR_")+TString(h_hodoY_vs_calo->GetName())]=(TObject*)h_hodoY_vs_calo; 
+
+  TH2F* h_hodoYPos_vs_bgoUDAsymm;
+  h_hodoYPos_vs_bgoUDAsymm=new TH2F("hodoY_vs_bgoUDAsymm","hodoYPos_vs_bgoUDAsymm",200,-1.,1.,200,0.,HODOY_CHANNELS);
+  outObjects[TString("HODO_")+TString(h_hodoYPos_vs_bgoUDAsymm->GetName())]=(TObject*)h_hodoYPos_vs_bgoUDAsymm; 
 
   TH2F* h_centerXTagger_vs_calo;
   h_centerXTagger_vs_calo=new TH2F("centerXTagger_vs_calo","centerXTagger_vs_calo",4096,-0.5,4095.5,4096,-0.5,4095.5);
@@ -399,12 +428,30 @@ void fastDQM_CeF3_BTF::Loop()
       //Loop over adc channels
       for (int i=0;i<NUM_ADC_CHANNELS;++i)
 	{
+	  //Checking that everything makes sense 
 	  if (adcData[i]<0 || adcData[i]>4095)
 	    std::cout << "WARNING ADC value outside ADC 12bit range!" << std::endl;
+
+	  if (adcBoard[i]>1 && adcBoard[i]<0)
+	    std::cout << "WARNING ADC board is unknown!" << std::endl;
+
+	  if (adcChannel[i]<0)
+	    std::cout << "WARNING ADC channel is unknown!" << std::endl;
+
+	  if ( (adcBoard[i]==0 && adcChannel[i]>7) || (adcBoard[i]==1 && adcChannel[i]>31))
+	    std::cout << "WARNING ADC channel is unknown!" << std::endl;
 
 	  if (adcBoard[i]==BGO_ADC_BOARD && (adcChannel[i]>=BGO_ADC_START_CHANNEL && adcChannel[i]<=BGO_ADC_END_CHANNEL) )
 	    {
 	      bgoEnergy+=adcData[i]*bgoIntercalibration[adcChannel[i]-BGO_ADC_START_CHANNEL];
+	      if (isInBGOUpRow(adcChannel[i]-BGO_ADC_START_CHANNEL))
+		bgoUpEnergy+=adcData[i]*bgoIntercalibration[adcChannel[i]-BGO_ADC_START_CHANNEL];
+	      if (isInBGODownRow(adcChannel[i]-BGO_ADC_START_CHANNEL))
+		bgoDownEnergy+=adcData[i]*bgoIntercalibration[adcChannel[i]-BGO_ADC_START_CHANNEL];
+	      if (isInBGORightRow(adcChannel[i]-BGO_ADC_START_CHANNEL))
+		bgoRightEnergy+=adcData[i]*bgoIntercalibration[adcChannel[i]-BGO_ADC_START_CHANNEL];
+	      if (isInBGOLeftRow(adcChannel[i]-BGO_ADC_START_CHANNEL))
+		bgoLeftEnergy+=adcData[i]*bgoIntercalibration[adcChannel[i]-BGO_ADC_START_CHANNEL];
 	      h_bgoRawSpectrum[adcChannel[i]-BGO_ADC_START_CHANNEL]->Fill(adcData[i]);
 	    }
 
@@ -461,6 +508,10 @@ void fastDQM_CeF3_BTF::Loop()
 
       //Fill energy plots
       h_bgoEnergy->Fill(bgoEnergy);
+      h_bgoEnergyUp->Fill(bgoUpEnergy);
+      h_bgoEnergyDown->Fill(bgoDownEnergy);
+      h_bgoEnergyLeft->Fill(bgoLeftEnergy);
+      h_bgoEnergyRight->Fill(bgoRightEnergy);
       h_cef3Energy->Fill(cef3Energy);
       h_caloEnergy->Fill(caloEnergy);
       h_hodoXEnergy->Fill(hodoXEnergy);
@@ -488,6 +539,8 @@ void fastDQM_CeF3_BTF::Loop()
       //Fill correlation plots
       h_bgo_vs_cef3->Fill(cef3Energy,bgoEnergy);
       h_hodoX_vs_calo->Fill(caloEnergy,hodoXEnergy);
+      h_hodoXPos_vs_bgoLRAsymm->Fill((bgoLeftEnergy-bgoRightEnergy)/(bgoLeftEnergy+bgoRightEnergy),hodoXPos);
+      h_hodoYPos_vs_bgoUDAsymm->Fill((bgoUpEnergy-bgoDownEnergy)/(bgoUpEnergy+bgoDownEnergy),hodoYPos);
       h_hodoY_vs_calo->Fill(caloEnergy,hodoYEnergy);
       h_centerXTagger_vs_calo->Fill(caloEnergy,centerXTaggerEnergy);
       h_centerYTagger_vs_calo->Fill(caloEnergy,centerYTaggerEnergy);
@@ -555,6 +608,7 @@ void fastDQM_CeF3_BTF::Loop()
 	 h_nTriggersTimeProfile->SetBinContent(i+1,nTriggers[i]);
 	 h_nTriggersTimeProfile->SetBinError(i+1,TMath::Sqrt(nTriggers[i]));
        }
+
    rate_TimeAverage.calculateAverages();
    fillTimeProfile(rate_TimeAverage,h_rateTimeProfile);
    bgoEnergy_TimeAverage.calculateAverages();
