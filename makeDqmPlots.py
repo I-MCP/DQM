@@ -54,6 +54,8 @@ print types
 plotDir='%s/%s'%(options.plotsDir,os.path.splitext(path_leaf(options.inputFile))[0])
 os.system('mkdir -p %s'%plotDir)
 os.system('cp index.php %s'%plotDir)
+#GO+1
+matrix=0
 for t in types:
     c=r.TCanvas(str(t),str(t),1500,1000)
     if len(types[t])<3:
@@ -64,14 +66,21 @@ for t in types:
         c.Divide(2,3,0,0)
     elif len(types[t])<10:
         c.Divide(3,3,0,0)
+        #GO+1
+        if (t == "BGORAW"): matrix=1
     else:
         c.Divide(4,4,0,0)
         
     for i in range(1,len(types[t])+1):
         c.cd(i)
+        #GO+1
+        if ((i>=5) & (matrix==1)): c.cd(i+1)
         r.gPad.SetBottomMargin(1.2)
         r.gPad.SetLeftMargin(1.2)
         r.gPad.SetRightMargin(1.2)
-        outFile.Get(types[t][i-1]).Draw()
+        histo = outFile.Get(types[t][i-1])
+        histo.SetLineColor(r.kRed)
+        histo.SetLineWidth(2)
+        histo.Draw()
     c.SaveAs("%s/%s.png"%(plotDir,str(t)))
     
