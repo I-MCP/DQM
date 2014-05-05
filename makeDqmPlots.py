@@ -18,7 +18,7 @@ parser.add_option("-p","--plotsDir")
 (options,args)=parser.parse_args()
 import ROOT as r
 r.gROOT.SetBatch(1)
-#r.gStyle.SetOptStat(0)
+r.gStyle.SetOptStat(111111)
 #r.gStyle.SetOptTitle(0)
 
 #r.gROOT.ProcessLine(".L drawRawData.C+")

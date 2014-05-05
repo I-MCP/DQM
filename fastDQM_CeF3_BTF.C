@@ -613,8 +613,14 @@ void fastDQM_CeF3_BTF::Loop()
        h_hodoXEnergyProfile->SetBinError(i+1,sqrt(eventsAbobePedestal));
      }
    TF1* fitFuncHodo=new TF1("fitFuncHodo","pol0+gaus(1)",0.,8.);
+   float avgY = 0.; 
+   for(unsigned int i(0); i<HODOX_CHANNELS; i++) 
+        avgY+= h_hodoXEnergyProfile->GetBinContent(i+1);
+   avgY /= HODOX_CHANNELS;
+   fitFuncHodo->SetParameter(1,avgY);
    fitFuncHodo->SetParameter(2,h_hodoXEnergyProfile->GetMean());
    fitFuncHodo->SetParameter(3,h_hodoXEnergyProfile->GetRMS());
+   std::cout << " Fitting h_hodoXEnergyProfile" << std::endl;
    h_hodoXEnergyProfile->Fit(fitFuncHodo,"RL+","",0.,8.);
 
    for (unsigned int i(0); i<HODOY_CHANNELS;++i)
@@ -624,8 +630,14 @@ void fastDQM_CeF3_BTF::Loop()
        h_hodoYEnergyProfile->SetBinContent(i+1,eventsAbobePedestal);
        h_hodoYEnergyProfile->SetBinError(i+1,sqrt(eventsAbobePedestal));
      }
+   avgY = 0.; 
+   for(unsigned int i(0); i<HODOY_CHANNELS; i++) 
+        avgY+= h_hodoYEnergyProfile->GetBinContent(i+1);
+   avgY /= HODOY_CHANNELS;
+   fitFuncHodo->SetParameter(1,avgY);
    fitFuncHodo->SetParameter(2,h_hodoYEnergyProfile->GetMean());
    fitFuncHodo->SetParameter(3,h_hodoYEnergyProfile->GetRMS());
+   std::cout << " Fitting h_hodoYEnergyProfile" << std::endl;
    h_hodoYEnergyProfile->Fit(fitFuncHodo,"RL+","",0.,8.);
 
    for (unsigned int i(0); i<CENTERX_TAGGER_CHANNELS;++i)
