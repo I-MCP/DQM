@@ -11,6 +11,7 @@
 #include <TTree.h>
 
 #define MAX_ADC_CHANNELS 200
+#define MAX_DIGI_SAMPLES 1024*36
 #define MAX_TDC_CHANNELS 200
 
 struct treeStructData
@@ -29,6 +30,12 @@ struct treeStructData
   unsigned int adcBoard[MAX_ADC_CHANNELS];
   unsigned int adcChannel[MAX_ADC_CHANNELS];
   unsigned int adcData[MAX_ADC_CHANNELS];
+
+  unsigned int nDigiSamples;
+  unsigned int digiGroup[MAX_DIGI_SAMPLES];
+  unsigned int digiChannel[MAX_DIGI_SAMPLES];
+  unsigned int digiSampleIndex[MAX_DIGI_SAMPLES];
+         float digiSampleValue[MAX_DIGI_SAMPLES];
 
   unsigned int nTdcChannels;
   unsigned int tdcBoard[MAX_TDC_CHANNELS];
@@ -51,6 +58,14 @@ struct tdcData
   unsigned int tdcReadout;
 };
 
+struct digiData
+{
+  unsigned int group;
+  unsigned int channel;
+  unsigned int sampleIndex;
+         float sampleValue;
+};
+
 struct myDAQEventData
 {
   unsigned int evtNumber;
@@ -58,6 +73,7 @@ struct myDAQEventData
   std::vector<bool> triggerWord;
   std::vector<adcData> adcValues; 
   std::vector<tdcData> tdcValues; 
+  std::vector<digiData> digiValues; 
   unsigned int evtTimeDist;
   unsigned int evtTimeStart;
   unsigned int evtTime;
@@ -102,6 +118,15 @@ void fillTreeData(myDAQEventData& data,treeStructData& treeData)
       treeData.tdcData[i]=data.tdcValues[i].tdcReadout;
     }
 
+  treeData.nDigiSamples=data.digiValues.size();
+  for (unsigned int i=0;i<fmin(MAX_DIGI_SAMPLES,data.digiValues.size());++i)
+    {
+      treeData.digiGroup[i]=data.digiValues[i].group;
+      treeData.digiChannel[i]=data.digiValues[i].channel;
+      treeData.digiSampleIndex[i]=data.digiValues[i].sampleIndex;
+      treeData.digiSampleValue[i]=data.digiValues[i].sampleValue;
+    }
+
 }
 
 
@@ -127,6 +152,11 @@ void createOutBranches(TTree* tree,treeStructData& treeData)
   tree->Branch("tdcChannel",treeData.tdcChannel,"tdcChannel[nTdcChannels]/i");
   tree->Branch("tdcData",treeData.tdcData,"tdcData[nTdcChannels]/i");
 
+  tree->Branch("nDigiSamples",&treeData.nDigiSamples,"nDigiSamples/i");
+  tree->Branch("digiGroup",treeData.digiGroup,"digiGroup[nDigiSamples/i");
+  tree->Branch("digiChannel",treeData.digiChannel,"digiChannel[nDigiSamples]/i");
+  tree->Branch("digiSampleIndex",treeData.digiSampleIndex,"digiSampleIndex[nDigiSamples]/i");
+  tree->Branch("digiSampleValue",treeData.digiSampleValue,"digiSample[nDigiSamples]/F");
 }
 
 int main(int argc, char *argv[])
@@ -188,6 +218,7 @@ int main(int argc, char *argv[])
   unsigned int evtSize;
   unsigned int adc265Channels=0;
   unsigned int adc792Channels=0;
+  unsigned int dig1742Words=0;
   unsigned int eventHeaderSize;
   myDAQEventData thisEvent;
   
@@ -205,6 +236,8 @@ int main(int argc, char *argv[])
       myFile.read ((char*)&thisEvent.boardTriggerBit, sizeof(thisEvent.boardTriggerBit));
       bool has_ADC265=(thisEvent.boardTriggerBit >> 3) & 0x1;
       bool has_ADC792=(thisEvent.boardTriggerBit >> 4) & 0x1;
+      bool has_DIG1742=(thisEvent.boardTriggerBit >> 7) & 0x1;
+      bool has_TDC1290=thisEvent.boardTriggerBit & 0x1;
       thisEvent.triggerWord.clear();
       thisEvent.adcValues.clear();
       thisEvent.tdcValues.clear();
@@ -212,6 +245,9 @@ int main(int argc, char *argv[])
 	myFile.read ((char*)&adc265Channels, sizeof(adc265Channels));
       if (has_ADC792)
 	myFile.read ((char*)&adc792Channels, sizeof(adc792Channels));
+      if (has_DIG1742)
+	myFile.read ((char*)&dig1742Words, sizeof(dig1742Words));
+
       myFile.read ((char*)&eventHeaderSize, sizeof(eventHeaderSize));
 
 
@@ -258,6 +294,99 @@ int main(int argc, char *argv[])
 	    }
 	  //printf("WORD %d: %X %d\n",i,adcRawData,dt_type);
 	}
+
+
+      unsigned int dig1742channels=0;
+
+      bool isDigiSample = 0;
+      unsigned int digRawData;
+      float digRawSample;
+
+      int nChannelWords=0;
+      int nSamplesToReadout=0;
+      int nSamplesRead=0;
+      int channelId=-1;
+      int groupId=-1;
+
+      for (int i=0;i<dig1742Words;++i)
+	{
+	  if (!isDigiSample)
+	    myFile.read ((char*)&digRawData, sizeof(digRawData));
+	  else
+	    myFile.read ((char*)&digRawSample, sizeof(digRawSample));
+
+	  if (i==0)
+	    {
+	      short dt_type = digRawData>>28 & 0xF; //BOE is 1010 (0xA)
+	      if (dt_type != 0xA)
+		std::cout << "DIGI 1742 BLOCK SEEMS CORRUPTED" << std::endl;
+	      unsigned int nWords = digRawData & 0xFFFFFFF; 
+	      if (nWords!=dig1742Words)
+		std::cout << "HEY MISMATCH IN DIGI 1742 #WORDS" << std::endl;
+	    }
+	  else if (i==2)
+	    { 
+	      dig1742channels=digRawData;
+	    }
+	  else if (i==3)
+	    { 
+	      unsigned int digiEvt=digRawData;
+	      if (digiEvt+1 != thisEvent.evtNumber)
+		std::cout << "HEY MISMATCH IN EVT NUMBER DIGIEVT " <<  digiEvt+1 << " EVT " << thisEvent.evtNumber << std::endl;
+	      
+	    }
+	  else if (i>4)
+	    { 
+	      //These are the real data
+	      if (!isDigiSample)
+		{
+		  if (nSamplesToReadout==0)
+		    {
+		      //This is the ChHeader[0]
+		      short dt_type = digRawData>>28 & 0xF; //ChHeader is 1000 (0x8)
+		      if (dt_type != 0x8)
+			std::cout << "DIGI 1742 BLOCK SEEMS CORRUPTED" << std::endl;
+		      unsigned int nChWords = digRawData & 0xFFFFFFF; 
+		      nSamplesToReadout=nChWords;
+		      nChannelWords=nChWords;
+		      nSamplesRead=0;
+		      nSamplesToReadout--;
+		    }
+		  else
+		    {
+		      //This is the ChHeader[1]
+		      int gr=digRawData>>16 & 0xFFFF; 
+		      int ch=digRawData & 0xFFFF; 
+		      channelId=ch;
+		      groupId=gr;
+		      nSamplesToReadout--;
+		      //Next sample will be a sample and should be read as a float
+		      isDigiSample=1;
+		    }
+		}
+	      else
+		{
+		  //This is a sample! 
+		  digiData aDigiSample;
+		  aDigiSample.channel=channelId;
+		  aDigiSample.group=groupId;
+		  aDigiSample.sampleIndex=nSamplesRead;
+		  aDigiSample.sampleValue=digRawSample;
+
+		  thisEvent.digiValues.push_back(aDigiSample);
+
+		  if (nSamplesToReadout==1)
+		    {
+		      //Next sample will be a ChHeader and should be read as as a uint
+		      isDigiSample=0;
+		      if (nSamplesRead + 3!= nChannelWords)
+			std::cout << "DIGI 1742 BLOCK SEEMS CORRUPTED NOT ALL THE SAMPLES WERE READOUT FOR CHANNEL " << channelId << " IN GROUP " << groupId << std::endl;
+		    }
+		  nSamplesToReadout--;
+		  nSamplesRead++;
+		}
+	    }
+	} //Close Dig1742 Block
 
 
       //      std::cout << "This event has " << thisEvent.adcValues.size() << " ADC channels " << std::endl;
