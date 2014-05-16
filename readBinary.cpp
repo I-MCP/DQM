@@ -226,6 +226,7 @@ int main(int argc, char *argv[])
   unsigned int adc265Channels=0;
   unsigned int adc792Channels=0;
   unsigned int dig1742Words=0;
+  unsigned int tdc1290Words=0;
   unsigned int eventHeaderSize;
   myDAQEventData thisEvent;
   
@@ -261,10 +262,12 @@ int main(int argc, char *argv[])
 	myFile.read ((char*)&adc792Channels, sizeof(adc792Channels));
       if (has_DIG1742)
 	myFile.read ((char*)&dig1742Words, sizeof(dig1742Words));
+      if (has_TDC1290)
+	myFile.read ((char*)&tdc1290Words, sizeof(tdc1290Words));
 
       myFile.read ((char*)&eventHeaderSize, sizeof(eventHeaderSize));
 
-      if (DEBUG_UNPACKER) printf("adc265Words %d\tadc792Words %d\tdig1742Words %d\n",adc265Channels,adc792Channels,dig1742Words); 
+      if (DEBUG_UNPACKER) printf("adc265Words %d\tadc792Words %d\tdig1742Words %d\ttdc1290Words %d\n",adc265Channels,adc792Channels,dig1742Words,tdc1290Words); 
 
       if (DEBUG_UNPACKER) printf("++++++++++++++++++++ ADC 265 ++++++++++++++++++++\n");
       for (int i=0;i<adc265Channels;++i)
@@ -394,7 +397,7 @@ int main(int argc, char *argv[])
 		  aDigiSample.group=groupId;
 		  aDigiSample.sampleIndex=nSamplesRead;
 		  aDigiSample.sampleValue=digRawSample;
-		  if (DEBUG_VERBOSE_UNPACKER) printf("sample %d %f\n",aDigiSample.sampleIndex,aDigiSample.sampleValue); 
+		  //		  if (DEBUG_VERBOSE_UNPACKER) printf("sample %d %f\n",aDigiSample.sampleIndex,aDigiSample.sampleValue); 
 		  thisEvent.digiValues.push_back(aDigiSample);
 
 		  if (nSamplesToReadout==1)
@@ -410,6 +413,32 @@ int main(int argc, char *argv[])
 	    }
 	} //Close Dig1742 Block
 
+      if (DEBUG_UNPACKER) printf("++++++++++++++++++++ TDC 1290 ++++++++++++++++++++\n");
+      for (int i=0;i<tdc1290Words;++i)
+	{
+	  unsigned int tdcRawData;
+	  myFile.read ((char*)&tdcRawData, sizeof(tdcRawData));
+	  //	  if (DEBUG_VERBOSE_UNPACKER) printf("TDC WORD %d: %X\n",i,tdcRawData);
+	  if (tdcRawData>>28 == 10 ) //TDC BOE
+	    {
+	      unsigned int tdcEvent=tdcRawData & 0xFFFFFFF;
+	      if (DEBUG_UNPACKER) printf("TDC 1190 BOE: event %d\n",tdcEvent+1); 
+	      if (tdcEvent+1 != thisEvent.evtNumber)
+		std::cout << "HEY MISMATCH IN EVT NUMBER TDCEVT " <<  tdcEvent+1 << " EVT " << thisEvent.evtNumber << std::endl;
+	    }
+	  else if (tdcRawData>>28 == 8) //TDC EOE
+	    {
+	    }
+	  else if (tdcRawData>>28 == 0) //TDC DATUM
+	    {
+	      tdcData thisData;
+	      thisData.board=0; //TDC Board is 0 
+	      thisData.channel = (tdcRawData>>21) & 0x1f;
+	      thisData.tdcReadout = tdcRawData & 0x1fffff;
+	      if (DEBUG_UNPACKER) printf("tdc 1190 board %d channel %d tdcReadout %d\n",thisData.board,thisData.channel,thisData.tdcReadout); 
+	      thisEvent.tdcValues.push_back(thisData);
+	    }
+	}
 
       //      std::cout << "This event has " << thisEvent.adcValues.size() << " ADC channels " << std::endl;
       myFile.read ((char*)&thisEvent.evtTimeDist, sizeof(thisEvent.evtTimeDist));
@@ -420,6 +449,7 @@ int main(int argc, char *argv[])
       tree->Fill();
       ++totEvents;
     }
+
 
   std::cout << totEvents << " events were read in total" << std::endl;
 
