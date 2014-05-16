@@ -14,7 +14,7 @@
 #define MAX_DIGI_SAMPLES 100000
 #define MAX_TDC_CHANNELS 200
 
-#define DEBUG_UNPACKER 1
+#define DEBUG_UNPACKER 0
 #define DEBUG_VERBOSE_UNPACKER 0
 
 struct treeStructData
