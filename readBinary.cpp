@@ -11,8 +11,11 @@
 #include <TTree.h>
 
 #define MAX_ADC_CHANNELS 200
-#define MAX_DIGI_SAMPLES 1024*36
+#define MAX_DIGI_SAMPLES 100000
 #define MAX_TDC_CHANNELS 200
+
+#define DEBUG_UNPACKER 1
+#define DEBUG_VERBOSE_UNPACKER 0
 
 struct treeStructData
 {
@@ -225,10 +228,15 @@ int main(int argc, char *argv[])
   unsigned int totEvents=0;
   while (!myFile.eof())
     {
+      if (DEBUG_UNPACKER) printf("============================================================\n");
+      if (DEBUG_UNPACKER) printf("                        NEW EVENT\n"); 
+      if (DEBUG_UNPACKER) printf("============================================================\n");
       myFile.read ((char*)&evtSize, sizeof(evtSize));
+      if (DEBUG_UNPACKER) printf("EVENT SIZE %d\n",evtSize); 
       if (myFile.eof())
 	continue;
       myFile.read ((char*)&thisEvent.evtNumber, sizeof(thisEvent.evtNumber));
+      if (DEBUG_UNPACKER) printf("EVENT NUMBER %d\n",thisEvent.evtNumber); 
       if (thisEvent.evtNumber % 1000 == 0)
 	{
 	  std::cout << "Event Number " << thisEvent.evtNumber << std::endl;
@@ -238,6 +246,7 @@ int main(int argc, char *argv[])
       bool has_ADC792=(thisEvent.boardTriggerBit >> 4) & 0x1;
       bool has_DIG1742=(thisEvent.boardTriggerBit >> 7) & 0x1;
       bool has_TDC1290=thisEvent.boardTriggerBit & 0x1;
+      if (DEBUG_UNPACKER) printf("ADC265 %d\tADC792 %d\tDIG1742 %d\tTDC1290 %d\n",has_ADC265,has_ADC792,has_DIG1742,has_TDC1290); 
       thisEvent.triggerWord.clear();
       thisEvent.adcValues.clear();
       thisEvent.tdcValues.clear();
@@ -250,7 +259,9 @@ int main(int argc, char *argv[])
 
       myFile.read ((char*)&eventHeaderSize, sizeof(eventHeaderSize));
 
+      if (DEBUG_UNPACKER) printf("adc265Words %d\tadc792Words %d\tdig1742Words %d\n",adc265Channels,adc792Channels,dig1742Words); 
 
+      if (DEBUG_UNPACKER) printf("++++++++++++++++++++ ADC 265 ++++++++++++++++++++\n");
       for (int i=0;i<adc265Channels;++i)
 	{
 	      unsigned int adcRawData;
@@ -263,9 +274,10 @@ int main(int argc, char *argv[])
 	      thisData.channel = (adcRawData & 0xe000)>>13;
 	      thisData.adcReadout = adcRawData & 0xfff;
 	      thisEvent.adcValues.push_back(thisData);
-	      
+	      if (DEBUG_UNPACKER) printf("adc265 board %d channel %d adcReadout %d\n",thisData.board,thisData.channel,thisData.adcReadout); 
 	}
-      
+
+      if (DEBUG_UNPACKER) printf("++++++++++++++++++++ ADC 792 ++++++++++++++++++++\n");
       for (int i=0;i<adc792Channels;++i)
 	{
 	  unsigned int adcRawData;
@@ -283,12 +295,13 @@ int main(int argc, char *argv[])
 	      thisData.adcReadout = adcRawData & 0xFFF;
 	      if ((adcRawData>>12) & 0x1) //overflow
 		thisData.adcReadout=4095;
-	      
+	      if (DEBUG_UNPACKER) printf("adc792 board %d channel %d adcReadout %d\n",thisData.board,thisData.channel,thisData.adcReadout); 
 	      thisEvent.adcValues.push_back(thisData);
 	    }
 	  if (dt_type==4)
 	    {
 	      unsigned int adcEvt=adcRawData & 0xFFFFFF;
+	      if (DEBUG_UNPACKER) printf("adc792 EOE: event %d\n",adcEvt+1); 
 	      if (adcEvt+1 != thisEvent.evtNumber)
 		std::cout << "HEY MISMATCH IN EVT NUMBER ADCEVT " << adcEvt+1 << " EVT " << thisEvent.evtNumber << std::endl;
 	    }
@@ -308,6 +321,7 @@ int main(int argc, char *argv[])
       int channelId=-1;
       int groupId=-1;
 
+      if (DEBUG_UNPACKER) printf("++++++++++++++++++++ DIGI 1742 ++++++++++++++++++++\n");
       for (int i=0;i<dig1742Words;++i)
 	{
 	  if (!isDigiSample)
@@ -331,6 +345,7 @@ int main(int argc, char *argv[])
 	  else if (i==3)
 	    { 
 	      unsigned int digiEvt=digRawData;
+	      if (DEBUG_UNPACKER) printf("v1742 event %d\n",digiEvt+1); 
 	      if (digiEvt+1 != thisEvent.evtNumber)
 		std::cout << "HEY MISMATCH IN EVT NUMBER DIGIEVT " <<  digiEvt+1 << " EVT " << thisEvent.evtNumber << std::endl;
 	      
@@ -347,6 +362,7 @@ int main(int argc, char *argv[])
 		      if (dt_type != 0x8)
 			std::cout << "DIGI 1742 BLOCK SEEMS CORRUPTED" << std::endl;
 		      unsigned int nChWords = digRawData & 0xFFFFFFF; 
+		      if (DEBUG_UNPACKER) printf("=====> NEW CHANNEL size %d ",nChWords); 
 		      nSamplesToReadout=nChWords;
 		      nChannelWords=nChWords;
 		      nSamplesRead=0;
@@ -360,6 +376,7 @@ int main(int argc, char *argv[])
 		      channelId=ch;
 		      groupId=gr;
 		      nSamplesToReadout--;
+		      if (DEBUG_UNPACKER) printf("group %d channel %d\n",groupId,channelId); 
 		      //Next sample will be a sample and should be read as a float
 		      isDigiSample=1;
 		    }
@@ -372,7 +389,7 @@ int main(int argc, char *argv[])
 		  aDigiSample.group=groupId;
 		  aDigiSample.sampleIndex=nSamplesRead;
 		  aDigiSample.sampleValue=digRawSample;
-
+		  if (DEBUG_VERBOSE_UNPACKER) printf("sample %d %f\n",aDigiSample.sampleIndex,aDigiSample.sampleValue); 
 		  thisEvent.digiValues.push_back(aDigiSample);
 
 		  if (nSamplesToReadout==1)
@@ -394,8 +411,8 @@ int main(int argc, char *argv[])
       myFile.read ((char*)&thisEvent.evtTimeStart, sizeof(thisEvent.evtTimeStart));
       myFile.read ((char*)&thisEvent.evtTime, sizeof(thisEvent.evtTime));
 
-      fillTreeData(thisEvent,thisTreeEvent);
-      tree->Fill();
+      // fillTreeData(thisEvent,thisTreeEvent);
+      // tree->Fill();
       ++totEvents;
     }
 
