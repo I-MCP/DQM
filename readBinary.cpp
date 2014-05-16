@@ -95,6 +95,7 @@ void cannotOpenFile(char * file)
 void fillTreeData(myDAQEventData& data,treeStructData& treeData)
 {
   treeData.evtNumber=data.evtNumber;
+  if (DEBUG_UNPACKER) printf("====== FILLING EVENT %d =====\n",treeData.evtNumber);
   treeData.evtTime=data.evtTime;
   treeData.evtTimeStart=data.evtTimeStart;
   treeData.evtTimeDist=data.evtTimeDist;
@@ -106,6 +107,7 @@ void fillTreeData(myDAQEventData& data,treeStructData& treeData)
     treeData.triggerWord+=data.triggerWord[i]>>i;
 
   treeData.nAdcChannels=data.adcValues.size();
+  if (DEBUG_UNPACKER) printf("FILLING %d ADC values\n",treeData.nAdcChannels);
   for (unsigned int i=0;i<fmin(MAX_ADC_CHANNELS,data.adcValues.size());++i)
     {
       treeData.adcBoard[i]=data.adcValues[i].board;
@@ -114,6 +116,7 @@ void fillTreeData(myDAQEventData& data,treeStructData& treeData)
     }
 
   treeData.nTdcChannels=data.tdcValues.size();
+  if (DEBUG_UNPACKER) printf("FILLING %d TDC values\n",treeData.nTdcChannels);
   for (unsigned int i=0;i<fmin(MAX_TDC_CHANNELS,data.tdcValues.size());++i)
     {
       treeData.tdcBoard[i]=data.tdcValues[i].board;
@@ -122,6 +125,7 @@ void fillTreeData(myDAQEventData& data,treeStructData& treeData)
     }
 
   treeData.nDigiSamples=data.digiValues.size();
+  if (DEBUG_UNPACKER) printf("FILLING %d DIGI values\n",treeData.nDigiSamples);
   for (unsigned int i=0;i<fmin(MAX_DIGI_SAMPLES,data.digiValues.size());++i)
     {
       treeData.digiGroup[i]=data.digiValues[i].group;
@@ -250,6 +254,7 @@ int main(int argc, char *argv[])
       thisEvent.triggerWord.clear();
       thisEvent.adcValues.clear();
       thisEvent.tdcValues.clear();
+      thisEvent.digiValues.clear();
       if (has_ADC265)
 	myFile.read ((char*)&adc265Channels, sizeof(adc265Channels));
       if (has_ADC792)
@@ -345,7 +350,7 @@ int main(int argc, char *argv[])
 	  else if (i==3)
 	    { 
 	      unsigned int digiEvt=digRawData;
-	      if (DEBUG_UNPACKER) printf("v1742 event %d\n",digiEvt+1); 
+	      if (DEBUG_UNPACKER) printf("DIGI 1742 BOE: event %d\n",digiEvt+1); 
 	      if (digiEvt+1 != thisEvent.evtNumber)
 		std::cout << "HEY MISMATCH IN EVT NUMBER DIGIEVT " <<  digiEvt+1 << " EVT " << thisEvent.evtNumber << std::endl;
 	      
@@ -411,8 +416,8 @@ int main(int argc, char *argv[])
       myFile.read ((char*)&thisEvent.evtTimeStart, sizeof(thisEvent.evtTimeStart));
       myFile.read ((char*)&thisEvent.evtTime, sizeof(thisEvent.evtTime));
 
-      // fillTreeData(thisEvent,thisTreeEvent);
-      // tree->Fill();
+      fillTreeData(thisEvent,thisTreeEvent);
+      tree->Fill();
       ++totEvents;
     }
 
