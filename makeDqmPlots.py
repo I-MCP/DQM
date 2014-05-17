@@ -12,6 +12,8 @@ def path_leaf(path):
 from optparse import OptionParser
 parser=OptionParser()
 parser.add_option("-i","--inputFile")
+parser.add_option("-m","--macro")
+parser.add_option("-d","--dir") # DQM_HOME directory
 parser.add_option("-o","--outputDir")
 parser.add_option("-p","--plotsDir")
 
@@ -22,7 +24,8 @@ r.gStyle.SetOptStat(111111)
 #r.gStyle.SetOptTitle(0)
 
 #r.gROOT.ProcessLine(".L drawRawData.C+")
-r.gROOT.ProcessLine(".L  fastDQM_CeF3_BTF.C+")
+#r.gROOT.ProcessLine(".L  fastDQM_CeF3_BTF.C+")
+r.gROOT.ProcessLine(".L  "+str(options.dir)+"/"+str(options.macro)+".C+")
 file = r.TFile.Open(options.inputFile)
 
 if (not file.IsOpen()):
@@ -31,7 +34,7 @@ if (not file.IsOpen()):
 
 tree = file.Get("eventRawData")
 os.system('mkdir -p %s'%options.outputDir)
-a=r.fastDQM_CeF3_BTF(tree)
+a=eval("r."+str(options.macro)+"(tree)")
 a.outFile=options.outputDir+"/"+os.path.splitext(path_leaf(options.inputFile))[0]+"_dqmPlots.root"
 a.Loop()
 
@@ -53,7 +56,7 @@ print types
 
 plotDir='%s/%s'%(options.plotsDir,os.path.splitext(path_leaf(options.inputFile))[0])
 os.system('mkdir -p %s'%plotDir)
-os.system('cp index.php %s'%plotDir)
+os.system('cp %s/index.php %s'%(str(options.dir),plotDir))
 #GO+1
 matrix=0
 for t in types:
