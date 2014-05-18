@@ -1,0 +1,3 @@
+DQM_HOME=/home/cmsdaq/DQM
+DQM_OUT_DIR=/home/cmsdaq/DQM
+PLOT_MACRO=fastDQM_iMCP_BTF

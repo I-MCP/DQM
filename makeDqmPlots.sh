@@ -1,25 +1,29 @@
 #!/bin/sh
 
-DQM_HOME=/home/cmsdaq/DQM
-DQM_OUT_DIR=/home/cmsdaq/DQM
-PLOT_MACRO=fastDQM_CeF3_BTF
-
 if [ -z "$ROOTSYS" ]; then
     echo "Please source root environment: source $HOME/root/bin/thisroot.sh"
     exit 1
 #else
 #    echo "ROOT already configured"
 fi
-
  
 runFile=$1
 runName=`basename $runFile`
 
 #Reading config file if available
 if [ $# -eq 2 ]; then
-    echo "Sourcing DQM config $2"
-    . $2
+    DQM_CONFIG=$2
+else
+    DQM_CONFIG=/home/cmsdaq/DQM/DQM_config.txt    
 fi
+
+if [ ! -f ${DQM_CONFIG} ]; then
+    echo "ERROR: ${DQM_CONFIG} does not exists"
+    exit
+fi
+
+echo "Sourcing DQM config ${DQM_CONFIG}"
+. ${DQM_CONFIG}
 
 mkdir -p ${DQM_OUT_DIR}/dataTree
 mkdir -p ${DQM_OUT_DIR}/log
