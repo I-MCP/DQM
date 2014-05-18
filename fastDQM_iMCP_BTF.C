@@ -247,6 +247,54 @@ void fastDQM_iMCP_BTF::Loop()
   outObjects[TString("TRIGGERWAVEDUMP_")+TString(h_tr0_waveDump->GetName())]=(TObject*)h_tr0_waveDump; 
   
 
+  //TDC histograms 
+  // nTdcSamples
+  TH1F* h_mcp_0_nTdcValues;
+  h_mcp_0_nTdcValues=new TH1F("h_mcp_0_nTdcValues","h_mcp_0_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("MCPTDCRAW_")+TString(h_mcp_0_nTdcValues->GetName())]=(TObject*)h_mcp_0_nTdcValues; 
+
+  TH1F* h_mcp_1_nTdcValues;
+  h_mcp_1_nTdcValues=new TH1F("h_mcp_1_nTdcValues","h_mcp_1_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("MCPTDCRAW_")+TString(h_mcp_1_nTdcValues->GetName())]=(TObject*)h_mcp_1_nTdcValues; 
+
+  TH1F* h_mcp_2_nTdcValues;
+  h_mcp_2_nTdcValues=new TH1F("h_mcp_2_nTdcValues","h_mcp_2_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("MCPTDCRAW_")+TString(h_mcp_2_nTdcValues->GetName())]=(TObject*)h_mcp_2_nTdcValues; 
+
+  TH1F* h_mcp_3_nTdcValues;
+  h_mcp_3_nTdcValues=new TH1F("h_mcp_3_nTdcValues","h_mcp_3_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("MCPTDCRAW_")+TString(h_mcp_3_nTdcValues->GetName())]=(TObject*)h_mcp_3_nTdcValues; 
+
+  TH1F* h_scintFront_nTdcValues;
+  h_scintFront_nTdcValues=new TH1F("h_scintFront_nTdcValues","h_scintFront_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("SCINTTDCRAW_")+TString(h_scintFront_nTdcValues->GetName())]=(TObject*)h_scintFront_nTdcValues; 
+
+  TH1F* h_scintBack_nTdcValues;
+  h_scintBack_nTdcValues=new TH1F("h_scintBack_nTdcValues","h_scintBack_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("SCINTTDCRAW_")+TString(h_scintBack_nTdcValues->GetName())]=(TObject*)h_scintBack_nTdcValues; 
+
+  //timeDifferences (wrt first hit of mcp_0)
+  TH1F* h_mcp_1_timeDiff_mcp_0;
+  h_mcp_1_timeDiff_mcp_0=new TH1F("h_mcp_1_timeDiff_mcp_0","h_mcp_1_timeDiff_mcp_0",201,-100.5,100.5);
+  outObjects[TString("MCPTDCTIMEDIFF_")+TString(h_mcp_1_timeDiff_mcp_0->GetName())]=(TObject*)h_mcp_1_timeDiff_mcp_0; 
+
+  TH1F* h_mcp_2_timeDiff_mcp_0;
+  h_mcp_2_timeDiff_mcp_0=new TH1F("h_mcp_2_timeDiff_mcp_0","h_mcp_2_timeDiff_mcp_0",201,-100.5,100.5);
+  outObjects[TString("MCPTDCTIMEDIFF_")+TString(h_mcp_2_timeDiff_mcp_0->GetName())]=(TObject*)h_mcp_2_timeDiff_mcp_0; 
+
+  TH1F* h_mcp_3_timeDiff_mcp_0;
+  h_mcp_3_timeDiff_mcp_0=new TH1F("h_mcp_3_timeDiff_mcp_0","h_mcp_3_timeDiff_mcp_0",201,-100.5,100.5);
+  outObjects[TString("MCPTDCTIMEDIFF_")+TString(h_mcp_3_timeDiff_mcp_0->GetName())]=(TObject*)h_mcp_3_timeDiff_mcp_0; 
+
+  TH1F* h_scintFront_timeDiff_mcp_0;
+  h_scintFront_timeDiff_mcp_0=new TH1F("h_scintFront_timeDiff_mcp_0","h_scintFront_timeDiff_mcp_0",201,-100.5,100.5);
+  outObjects[TString("SCINTTDCTIMEDIFF_")+TString(h_scintFront_timeDiff_mcp_0->GetName())]=(TObject*)h_scintFront_timeDiff_mcp_0; 
+
+  TH1F* h_scintBack_timeDiff_mcp_0;
+  h_scintBack_timeDiff_mcp_0=new TH1F("h_scintBack_timeDiff_mcp_0","h_scintBack_timeDiff_mcp_0",201,-100.5,100.5);
+  outObjects[TString("SCINTTDCTIMEDIFF_")+TString(h_scintBack_timeDiff_mcp_0->GetName())]=(TObject*)h_scintBack_timeDiff_mcp_0; 
+
+
   std::cout << "==================== Booked histograms =======================" << std::endl;
    for (std::map<TString,TObject*>::const_iterator out=outObjects.begin();out!=outObjects.end();++out)
      std::cout << out->second->GetName() << std::endl;
@@ -346,7 +394,7 @@ void fastDQM_iMCP_BTF::Loop()
       
       
       
-      //Loop over adc channels
+      //Loop over digiSamples 
       for (unsigned int i=0;i<nDigiSamples;++i)
      {
        //Checking that everything makes sense 
@@ -387,19 +435,91 @@ void fastDQM_iMCP_BTF::Loop()
        	 h_tr0_waveDump->Fill(digiSampleIndex[i],digiSampleValue[i]);
      }
 
-   //Fill position plots
-   if (hodoXEnergy>0)
-     h_hodoXPos->Fill(hodoXPos/hodoXEnergy);
-   if (hodoYEnergy>0)
-     h_hodoYPos->Fill(hodoYPos/hodoYEnergy);
-   
+      //Loop over tdc readout 
+      int tdcReadouts[NUM_TDC_CHANNELS][256];
+      int nTdcReadouts[NUM_TDC_CHANNELS];
+      
+      for (unsigned int i=0;i<NUM_TDC_CHANNELS;++i)
+	nTdcReadouts[i]=0;
+
+      for (unsigned int i=0;i<nTdcChannels;++i)
+	{
+	  if (tdcBoard[i]>0)
+	    std::cout << "WARNING TDC board is unknown!" << std::endl;
+	  
+	  if (tdcChannel[i]>=NUM_TDC_CHANNELS)
+	    std::cout << "WARNING TDC channel is unknown!" << std::endl;
+	  
+	  //Put the tdcReadout in the channel buffer
+	  int ch=tdcChannel[i];
+	  int nvalues=nTdcReadouts[ch];
+	  tdcReadouts[ch][nvalues]=tdcData[i];
+	  nTdcReadouts[ch]++;
+	}
+      
+      int timeRefenceChannel=-1;
+      for ( unsigned int i=0;i<NUM_TDC_CHANNELS;++i)
+	if (i==MCP_0_TDC_CHANNEL) 
+	  timeRefenceChannel=i;
+      
+      for ( unsigned int i=0;i<NUM_TDC_CHANNELS;++i)
+	{
+	  if (i==MCP_0_TDC_CHANNEL)
+	    {
+	      h_mcp_0_nTdcValues->Fill(nTdcReadouts[i]);
+	    }
+	  else if (i==MCP_1_TDC_CHANNEL)
+	    {
+	      h_mcp_1_nTdcValues->Fill(nTdcReadouts[i]);
+	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
+		if (nTdcReadouts[timeRefenceChannel]>0)
+		  h_mcp_1_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
+	    }
+	  else if (i==MCP_2_TDC_CHANNEL)
+	    {
+	      h_mcp_2_nTdcValues->Fill(nTdcReadouts[i]);
+	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
+		if (nTdcReadouts[timeRefenceChannel]>0)
+		  h_mcp_2_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
+	    }
+	  else if (i==MCP_3_TDC_CHANNEL)
+	    {
+	      h_mcp_3_nTdcValues->Fill(nTdcReadouts[i]);
+	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
+		if (nTdcReadouts[timeRefenceChannel]>0)
+		  h_mcp_3_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
+	    }
+	  else if (i==SCINT_FRONT_TDC_CHANNEL)
+	    {
+	      h_scintFront_nTdcValues->Fill(nTdcReadouts[i]);
+	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
+		if (nTdcReadouts[timeRefenceChannel]>0)
+		  h_scintFront_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
+	    }
+	  else if (i==SCINT_BACK_TDC_CHANNEL)
+	    {
+	      h_scintBack_nTdcValues->Fill(nTdcReadouts[i]);
+	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
+		if (nTdcReadouts[timeRefenceChannel]>0)
+		  h_scintBack_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
+	    }
+
+	}
+      
+
+      //Fill position plots
+      if (hodoXEnergy>0)
+	h_hodoXPos->Fill(hodoXPos/hodoXEnergy);
+      if (hodoYEnergy>0)
+	h_hodoYPos->Fill(hodoYPos/hodoYEnergy);
+      
    //Fill time averages
    hodoXEnergy_TimeAverage.addMeasure(itime,hodoXEnergy);
    hodoYEnergy_TimeAverage.addMeasure(itime,hodoYEnergy);
    hodoXPos_TimeAverage.addMeasure(itime,hodoXPos);
    hodoYPos_TimeAverage.addMeasure(itime,hodoYPos);
    scintFrontEnergy_TimeAverage.addMeasure(itime,scintFrontEnergy);
-      scintBackEnergy_TimeAverage.addMeasure(itime,scintBackEnergy);
+   scintBackEnergy_TimeAverage.addMeasure(itime,scintBackEnergy);
       
       
    }
