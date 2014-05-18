@@ -96,6 +96,20 @@ for t in types:
             histo.SetStats(0)
             histo.Draw("COLZ")
         else:
+            if ( (t.find("HODOXCOR") != -1) or
+                 (t.find("HODOXRAW") != -1) or
+                 (t.find("HODOYRAW") != -1) or
+                 (t.find("HODOYCOR") != -1) or
+                 (t.find("TIMEDIFF") != -1) or
+                 (t.find("TDCVALRAW") != -1) or
+                 (t == "SCINT" )
+                 ):
+                r.gPad.SetLogy()
+            if ( (t.find("TIMEPROFILE") != -1) ):
+                histo.SetMarkerStyle(20)
+                histo.SetMarkerSize(1.2)
+                histo.SetLineColor(r.kBlack)
+                histo.SetMarkerColor(r.kBlack)
             histo.Draw()
     c.SaveAs("%s/%s.png"%(plotDir,str(t)))
     
