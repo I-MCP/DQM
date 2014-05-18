@@ -273,6 +273,31 @@ void fastDQM_iMCP_BTF::Loop()
   h_scintBack_nTdcValues=new TH1F("h_scintBack_nTdcValues","h_scintBack_nTdcValues",10,-0.5,9.5);
   outObjects[TString("SCINTTDCRAW_")+TString(h_scintBack_nTdcValues->GetName())]=(TObject*)h_scintBack_nTdcValues; 
 
+
+  TH1F* h_mcp_0_tdcRawValues;
+  h_mcp_0_tdcRawValues=new TH1F("h_mcp_0_tdcRawValues","h_mcp_0_tdcRawValues",8000,-0.5,7999.5); //200 ns range (25ps LSB)
+  outObjects[TString("MCPTDCVALRAW_")+TString(h_mcp_0_tdcRawValues->GetName())]=(TObject*)h_mcp_0_tdcRawValues; 
+
+  TH1F* h_mcp_1_tdcRawValues;
+  h_mcp_1_tdcRawValues=new TH1F("h_mcp_1_tdcRawValues","h_mcp_1_tdcRawValues",8000,-0.5,7999.5);
+  outObjects[TString("MCPTDCVALRAW_")+TString(h_mcp_1_tdcRawValues->GetName())]=(TObject*)h_mcp_1_tdcRawValues; 
+
+  TH1F* h_mcp_2_tdcRawValues;
+  h_mcp_2_tdcRawValues=new TH1F("h_mcp_2_tdcRawValues","h_mcp_2_tdcRawValues",8000,-0.5,7999.5);
+  outObjects[TString("MCPTDCVALRAW_")+TString(h_mcp_2_tdcRawValues->GetName())]=(TObject*)h_mcp_2_tdcRawValues; 
+
+  TH1F* h_mcp_3_tdcRawValues;
+  h_mcp_3_tdcRawValues=new TH1F("h_mcp_3_tdcRawValues","h_mcp_3_tdcRawValues",8000,-0.5,7999.5);
+  outObjects[TString("MCPTDCVALRAW_")+TString(h_mcp_3_tdcRawValues->GetName())]=(TObject*)h_mcp_3_tdcRawValues; 
+
+  TH1F* h_scintFront_tdcRawValues;
+  h_scintFront_tdcRawValues=new TH1F("h_scintFront_tdcRawValues","h_scintFront_tdcRawValues",8000,-0.5,7999.5);
+  outObjects[TString("SCINTTDCVALRAW_")+TString(h_scintFront_tdcRawValues->GetName())]=(TObject*)h_scintFront_tdcRawValues; 
+
+  TH1F* h_scintBack_tdcRawValues;
+  h_scintBack_tdcRawValues=new TH1F("h_scintBack_tdcRawValues","h_scintBack_tdcRawValues",8000,-0.5,7999.5);
+  outObjects[TString("SCINTTDCVALRAW_")+TString(h_scintBack_tdcRawValues->GetName())]=(TObject*)h_scintBack_tdcRawValues; 
+
   //timeDifferences (wrt first hit of mcp_0)
   TH1F* h_mcp_1_timeDiff_mcp_0;
   h_mcp_1_timeDiff_mcp_0=new TH1F("h_mcp_1_timeDiff_mcp_0","h_mcp_1_timeDiff_mcp_0",201,-100.5,100.5);
@@ -410,7 +435,7 @@ void fastDQM_iMCP_BTF::Loop()
        if (digiChannel[i]>8 )
 	 std::cout << "WARNING DIGI channel is unknown!" << std::endl;
        
-       if (digiChannel[i]==MCP_0_DIGITIZER_CHANNEL &&  digiGroup[i]==0 )
+       if (digiChannel[i]==MCP_0_DIGITIZER_CHANNEL )
 	   h_mcp_0_waveDump->Fill(digiSampleIndex[i],digiSampleValue[i]);
 
        if (digiChannel[i] == MCP_1_DIGITIZER_CHANNEL )
@@ -467,10 +492,15 @@ void fastDQM_iMCP_BTF::Loop()
 	  if (i==MCP_0_TDC_CHANNEL)
 	    {
 	      h_mcp_0_nTdcValues->Fill(nTdcReadouts[i]);
+	      for (unsigned int j=0;j<nTdcReadouts[i];++j)
+		h_mcp_0_tdcRawValues->Fill(tdcReadouts[i][j]);
 	    }
 	  else if (i==MCP_1_TDC_CHANNEL)
 	    {
 	      h_mcp_1_nTdcValues->Fill(nTdcReadouts[i]);
+	      for (unsigned int j=0;j<nTdcReadouts[i];++j)
+		h_mcp_1_tdcRawValues->Fill(tdcReadouts[i][j]);
+
 	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
 		if (nTdcReadouts[timeRefenceChannel]>0)
 		  h_mcp_1_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
@@ -478,6 +508,9 @@ void fastDQM_iMCP_BTF::Loop()
 	  else if (i==MCP_2_TDC_CHANNEL)
 	    {
 	      h_mcp_2_nTdcValues->Fill(nTdcReadouts[i]);
+	      for (unsigned int j=0;j<nTdcReadouts[i];++j)
+		h_mcp_2_tdcRawValues->Fill(tdcReadouts[i][j]);
+
 	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
 		if (nTdcReadouts[timeRefenceChannel]>0)
 		  h_mcp_2_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
@@ -485,6 +518,9 @@ void fastDQM_iMCP_BTF::Loop()
 	  else if (i==MCP_3_TDC_CHANNEL)
 	    {
 	      h_mcp_3_nTdcValues->Fill(nTdcReadouts[i]);
+	      for (unsigned int j=0;j<nTdcReadouts[i];++j)
+		h_mcp_3_tdcRawValues->Fill(tdcReadouts[i][j]);
+
 	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
 		if (nTdcReadouts[timeRefenceChannel]>0)
 		  h_mcp_3_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
@@ -492,6 +528,9 @@ void fastDQM_iMCP_BTF::Loop()
 	  else if (i==SCINT_FRONT_TDC_CHANNEL)
 	    {
 	      h_scintFront_nTdcValues->Fill(nTdcReadouts[i]);
+	      for (unsigned int j=0;j<nTdcReadouts[i];++j)
+		h_scintFront_tdcRawValues->Fill(tdcReadouts[i][j]);
+
 	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
 		if (nTdcReadouts[timeRefenceChannel]>0)
 		  h_scintFront_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
@@ -499,6 +538,9 @@ void fastDQM_iMCP_BTF::Loop()
 	  else if (i==SCINT_BACK_TDC_CHANNEL)
 	    {
 	      h_scintBack_nTdcValues->Fill(nTdcReadouts[i]);
+	      for (unsigned int j=0;j<nTdcReadouts[i];++j)
+		h_scintBack_tdcRawValues->Fill(tdcReadouts[i][j]);
+
 	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
 		if (nTdcReadouts[timeRefenceChannel]>0)
 		  h_scintBack_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
