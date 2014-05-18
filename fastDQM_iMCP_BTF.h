@@ -58,6 +58,8 @@
 
 #define MCP_4_DIGITIZER_CHANNEL 5
 
+#define TR0_DIGITIZER_CHANNEL 8
+
 // Header file for the classes stored in the TTree if any.
 
 // Fixed size dimensions of array or collections stored in the TTree if any.

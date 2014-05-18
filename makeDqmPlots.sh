@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ $# -lt 1 ]; then
+    echo "Usage: makeDqmPlots.sh <raw binary file> <DQM_config>"
+    exit
+fi
+
 if [ -z "$ROOTSYS" ]; then
     echo "Please source root environment: source $HOME/root/bin/thisroot.sh"
     exit 1

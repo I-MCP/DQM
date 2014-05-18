@@ -213,6 +213,88 @@ void fastDQM_iMCP_BTF::Loop()
   outObjects[TString("TIMEPROFILESCINT_")+TString(h_scintBackEnergyTimeProfile->GetName())]=(TObject*)h_scintBackEnergyTimeProfile; 
 
 
+  //Persistency plots waveforms for various channels
+  TH2F* h_mcp_0_waveDump;
+  h_mcp_0_waveDump=new TH2F("h_mcp_0_waveDump","h_mcp_0_waveDump",1024,-0.5,1023.5,4096,-0.5,4095.5);
+  outObjects[TString("MCPWAVEDUMP_")+TString(h_mcp_0_waveDump->GetName())]=(TObject*)h_mcp_0_waveDump; 
+
+  TH2F* h_mcp_1_waveDump;
+  h_mcp_1_waveDump=new TH2F("h_mcp_1_waveDump","h_mcp_1_waveDump",1024,-0.5,1023.5,4096,-0.5,4095.5);
+  outObjects[TString("MCPWAVEDUMP_")+TString(h_mcp_1_waveDump->GetName())]=(TObject*)h_mcp_1_waveDump; 
+
+  TH2F* h_mcp_2_waveDump;
+  h_mcp_2_waveDump=new TH2F("h_mcp_2_waveDump","h_mcp_2_waveDump",1024,-0.5,1023.5,4096,-0.5,4095.5);
+  outObjects[TString("MCPWAVEDUMP_")+TString(h_mcp_2_waveDump->GetName())]=(TObject*)h_mcp_2_waveDump; 
+
+  TH2F* h_mcp_3_waveDump;
+  h_mcp_3_waveDump=new TH2F("h_mcp_3_waveDump","h_mcp_3_waveDump",1024,-0.5,1023.5,4096,-0.5,4095.5);
+  outObjects[TString("MCPWAVEDUMP_")+TString(h_mcp_3_waveDump->GetName())]=(TObject*)h_mcp_3_waveDump; 
+
+  TH2F* h_mcp_4_waveDump;
+  h_mcp_4_waveDump=new TH2F("h_mcp_4_waveDump","h_mcp_4_waveDump",1024,-0.5,1023.5,4096,-0.5,4095.5);
+  outObjects[TString("MCPWAVEDUMP_")+TString(h_mcp_4_waveDump->GetName())]=(TObject*)h_mcp_4_waveDump; 
+
+  TH2F* h_scintFront_waveDump;
+  h_scintFront_waveDump=new TH2F("h_scintFront_waveDump","h_scintFront_waveDump",1024,-0.5,1023.5,4096,-0.5,4095.5);
+  outObjects[TString("SCINTWAVEDUMP_")+TString(h_scintFront_waveDump->GetName())]=(TObject*)h_scintFront_waveDump; 
+
+  TH2F* h_scintBack_waveDump;
+  h_scintBack_waveDump=new TH2F("h_scintBack_waveDump","h_scintBack_waveDump",1024,-0.5,1023.5,4096,-0.5,4095.5);
+  outObjects[TString("SCINTWAVEDUMP_")+TString(h_scintBack_waveDump->GetName())]=(TObject*)h_scintBack_waveDump; 
+
+  TH2F* h_tr0_waveDump;
+  h_tr0_waveDump=new TH2F("h_tr0_waveDump","h_tr0_waveDump",1024,-0.5,1023.5,4096,-0.5,4095.5);
+  outObjects[TString("TRIGGERWAVEDUMP_")+TString(h_tr0_waveDump->GetName())]=(TObject*)h_tr0_waveDump; 
+  
+
+  //TDC histograms 
+  // nTdcSamples
+  TH1F* h_mcp_0_nTdcValues;
+  h_mcp_0_nTdcValues=new TH1F("h_mcp_0_nTdcValues","h_mcp_0_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("MCPTDCRAW_")+TString(h_mcp_0_nTdcValues->GetName())]=(TObject*)h_mcp_0_nTdcValues; 
+
+  TH1F* h_mcp_1_nTdcValues;
+  h_mcp_1_nTdcValues=new TH1F("h_mcp_1_nTdcValues","h_mcp_1_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("MCPTDCRAW_")+TString(h_mcp_1_nTdcValues->GetName())]=(TObject*)h_mcp_1_nTdcValues; 
+
+  TH1F* h_mcp_2_nTdcValues;
+  h_mcp_2_nTdcValues=new TH1F("h_mcp_2_nTdcValues","h_mcp_2_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("MCPTDCRAW_")+TString(h_mcp_2_nTdcValues->GetName())]=(TObject*)h_mcp_2_nTdcValues; 
+
+  TH1F* h_mcp_3_nTdcValues;
+  h_mcp_3_nTdcValues=new TH1F("h_mcp_3_nTdcValues","h_mcp_3_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("MCPTDCRAW_")+TString(h_mcp_3_nTdcValues->GetName())]=(TObject*)h_mcp_3_nTdcValues; 
+
+  TH1F* h_scintFront_nTdcValues;
+  h_scintFront_nTdcValues=new TH1F("h_scintFront_nTdcValues","h_scintFront_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("SCINTTDCRAW_")+TString(h_scintFront_nTdcValues->GetName())]=(TObject*)h_scintFront_nTdcValues; 
+
+  TH1F* h_scintBack_nTdcValues;
+  h_scintBack_nTdcValues=new TH1F("h_scintBack_nTdcValues","h_scintBack_nTdcValues",10,-0.5,9.5);
+  outObjects[TString("SCINTTDCRAW_")+TString(h_scintBack_nTdcValues->GetName())]=(TObject*)h_scintBack_nTdcValues; 
+
+  //timeDifferences (wrt first hit of mcp_0)
+  TH1F* h_mcp_1_timeDiff_mcp_0;
+  h_mcp_1_timeDiff_mcp_0=new TH1F("h_mcp_1_timeDiff_mcp_0","h_mcp_1_timeDiff_mcp_0",201,-100.5,100.5);
+  outObjects[TString("MCPTDCTIMEDIFF_")+TString(h_mcp_1_timeDiff_mcp_0->GetName())]=(TObject*)h_mcp_1_timeDiff_mcp_0; 
+
+  TH1F* h_mcp_2_timeDiff_mcp_0;
+  h_mcp_2_timeDiff_mcp_0=new TH1F("h_mcp_2_timeDiff_mcp_0","h_mcp_2_timeDiff_mcp_0",201,-100.5,100.5);
+  outObjects[TString("MCPTDCTIMEDIFF_")+TString(h_mcp_2_timeDiff_mcp_0->GetName())]=(TObject*)h_mcp_2_timeDiff_mcp_0; 
+
+  TH1F* h_mcp_3_timeDiff_mcp_0;
+  h_mcp_3_timeDiff_mcp_0=new TH1F("h_mcp_3_timeDiff_mcp_0","h_mcp_3_timeDiff_mcp_0",201,-100.5,100.5);
+  outObjects[TString("MCPTDCTIMEDIFF_")+TString(h_mcp_3_timeDiff_mcp_0->GetName())]=(TObject*)h_mcp_3_timeDiff_mcp_0; 
+
+  TH1F* h_scintFront_timeDiff_mcp_0;
+  h_scintFront_timeDiff_mcp_0=new TH1F("h_scintFront_timeDiff_mcp_0","h_scintFront_timeDiff_mcp_0",201,-100.5,100.5);
+  outObjects[TString("SCINTTDCTIMEDIFF_")+TString(h_scintFront_timeDiff_mcp_0->GetName())]=(TObject*)h_scintFront_timeDiff_mcp_0; 
+
+  TH1F* h_scintBack_timeDiff_mcp_0;
+  h_scintBack_timeDiff_mcp_0=new TH1F("h_scintBack_timeDiff_mcp_0","h_scintBack_timeDiff_mcp_0",201,-100.5,100.5);
+  outObjects[TString("SCINTTDCTIMEDIFF_")+TString(h_scintBack_timeDiff_mcp_0->GetName())]=(TObject*)h_scintBack_timeDiff_mcp_0; 
+
+
   std::cout << "==================== Booked histograms =======================" << std::endl;
    for (std::map<TString,TObject*>::const_iterator out=outObjects.begin();out!=outObjects.end();++out)
      std::cout << out->second->GetName() << std::endl;
@@ -261,7 +343,7 @@ void fastDQM_iMCP_BTF::Loop()
       float hodoXPos=0,hodoYPos=0;
 
       //Loop over adc channels
-      for (int i=0;i<NUM_ADC_CHANNELS;++i)
+      for (int i=0;i<nAdcChannels;++i)
 	{
 	  //Checking that everything makes sense 
 	  if (adcData[i]<0 || adcData[i]>4095)
@@ -309,23 +391,139 @@ void fastDQM_iMCP_BTF::Loop()
 	      //unused channel
 	    }
 	}
+      
+      
+      
+      //Loop over digiSamples 
+      for (unsigned int i=0;i<nDigiSamples;++i)
+     {
+       //Checking that everything makes sense 
+       if (digiSampleValue[i]<-3 || digiSampleValue[i]>4100)
+	 std::cout << "WARNING DIGI sample value outside ADC 12bit range!" << std::endl;
 
+       if (digiSampleIndex[i]>1023)
+	 std::cout << "WARNING DIGI sample index outside digitizer buffer range" << std::endl;
+       
+       if (digiGroup[i]>3)
+	 std::cout << "WARNING DIGI group is unknown!" << std::endl;
+       
+       if (digiChannel[i]>8 )
+	 std::cout << "WARNING DIGI channel is unknown!" << std::endl;
+       
+       if (digiChannel[i]==MCP_0_DIGITIZER_CHANNEL &&  digiGroup[i]==0 )
+	   h_mcp_0_waveDump->Fill(digiSampleIndex[i],digiSampleValue[i]);
+
+       if (digiChannel[i] == MCP_1_DIGITIZER_CHANNEL )
+       	 h_mcp_1_waveDump->Fill(digiSampleIndex[i],digiSampleValue[i]);
+
+       if (digiChannel[i] == MCP_2_DIGITIZER_CHANNEL )
+       	 h_mcp_2_waveDump->Fill(digiSampleIndex[i],digiSampleValue[i]);
+	 
+       if (digiChannel[i] == MCP_3_DIGITIZER_CHANNEL )
+       	 h_mcp_3_waveDump->Fill(digiSampleIndex[i],digiSampleValue[i]);
+
+       if (digiChannel[i] == MCP_4_DIGITIZER_CHANNEL )
+       	 h_mcp_4_waveDump->Fill(digiSampleIndex[i],digiSampleValue[i]);
+
+       if (digiChannel[i] == SCINT_FRONT_DIGITIZER_CHANNEL )
+       	 h_scintFront_waveDump->Fill(digiSampleIndex[i],digiSampleValue[i]);
+
+       if (digiChannel[i] == SCINT_BACK_DIGITIZER_CHANNEL )
+       	 h_scintBack_waveDump->Fill(digiSampleIndex[i],digiSampleValue[i]);
+
+       if (digiChannel[i] == TR0_DIGITIZER_CHANNEL )
+       	 h_tr0_waveDump->Fill(digiSampleIndex[i],digiSampleValue[i]);
+     }
+
+      //Loop over tdc readout 
+      int tdcReadouts[NUM_TDC_CHANNELS][256];
+      int nTdcReadouts[NUM_TDC_CHANNELS];
+      
+      for (unsigned int i=0;i<NUM_TDC_CHANNELS;++i)
+	nTdcReadouts[i]=0;
+
+      for (unsigned int i=0;i<nTdcChannels;++i)
+	{
+	  if (tdcBoard[i]>0)
+	    std::cout << "WARNING TDC board is unknown!" << std::endl;
+	  
+	  if (tdcChannel[i]>=NUM_TDC_CHANNELS)
+	    std::cout << "WARNING TDC channel is unknown!" << std::endl;
+	  
+	  //Put the tdcReadout in the channel buffer
+	  int ch=tdcChannel[i];
+	  int nvalues=nTdcReadouts[ch];
+	  tdcReadouts[ch][nvalues]=tdcData[i];
+	  nTdcReadouts[ch]++;
+	}
+      
+      int timeRefenceChannel=-1;
+      for ( unsigned int i=0;i<NUM_TDC_CHANNELS;++i)
+	if (i==MCP_0_TDC_CHANNEL) 
+	  timeRefenceChannel=i;
+      
+      for ( unsigned int i=0;i<NUM_TDC_CHANNELS;++i)
+	{
+	  if (i==MCP_0_TDC_CHANNEL)
+	    {
+	      h_mcp_0_nTdcValues->Fill(nTdcReadouts[i]);
+	    }
+	  else if (i==MCP_1_TDC_CHANNEL)
+	    {
+	      h_mcp_1_nTdcValues->Fill(nTdcReadouts[i]);
+	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
+		if (nTdcReadouts[timeRefenceChannel]>0)
+		  h_mcp_1_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
+	    }
+	  else if (i==MCP_2_TDC_CHANNEL)
+	    {
+	      h_mcp_2_nTdcValues->Fill(nTdcReadouts[i]);
+	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
+		if (nTdcReadouts[timeRefenceChannel]>0)
+		  h_mcp_2_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
+	    }
+	  else if (i==MCP_3_TDC_CHANNEL)
+	    {
+	      h_mcp_3_nTdcValues->Fill(nTdcReadouts[i]);
+	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
+		if (nTdcReadouts[timeRefenceChannel]>0)
+		  h_mcp_3_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
+	    }
+	  else if (i==SCINT_FRONT_TDC_CHANNEL)
+	    {
+	      h_scintFront_nTdcValues->Fill(nTdcReadouts[i]);
+	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
+		if (nTdcReadouts[timeRefenceChannel]>0)
+		  h_scintFront_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
+	    }
+	  else if (i==SCINT_BACK_TDC_CHANNEL)
+	    {
+	      h_scintBack_nTdcValues->Fill(nTdcReadouts[i]);
+	      if (nTdcReadouts[i]>0 && timeRefenceChannel>-1)
+		if (nTdcReadouts[timeRefenceChannel]>0)
+		  h_scintBack_timeDiff_mcp_0->Fill(tdcReadouts[i][0]-tdcReadouts[timeRefenceChannel][0]);
+	    }
+
+	}
+      
 
       //Fill position plots
       if (hodoXEnergy>0)
 	h_hodoXPos->Fill(hodoXPos/hodoXEnergy);
       if (hodoYEnergy>0)
 	h_hodoYPos->Fill(hodoYPos/hodoYEnergy);
-
-      //Fill time averages
-      hodoXEnergy_TimeAverage.addMeasure(itime,hodoXEnergy);
-      hodoYEnergy_TimeAverage.addMeasure(itime,hodoYEnergy);
-      hodoXPos_TimeAverage.addMeasure(itime,hodoXPos);
-      hodoYPos_TimeAverage.addMeasure(itime,hodoYPos);
-      scintFrontEnergy_TimeAverage.addMeasure(itime,scintFrontEnergy);
-      scintBackEnergy_TimeAverage.addMeasure(itime,scintBackEnergy);
+      
+   //Fill time averages
+   hodoXEnergy_TimeAverage.addMeasure(itime,hodoXEnergy);
+   hodoYEnergy_TimeAverage.addMeasure(itime,hodoYEnergy);
+   hodoXPos_TimeAverage.addMeasure(itime,hodoXPos);
+   hodoYPos_TimeAverage.addMeasure(itime,hodoYPos);
+   scintFrontEnergy_TimeAverage.addMeasure(itime,scintFrontEnergy);
+   scintBackEnergy_TimeAverage.addMeasure(itime,scintBackEnergy);
+      
+      
    }
-
+   
 
    for (unsigned int i(0); i<HODOX_CHANNELS;++i)
      {
@@ -383,6 +581,8 @@ void fastDQM_iMCP_BTF::Loop()
    fillTimeProfile(scintFrontEnergy_TimeAverage,h_scintFrontEnergyTimeProfile);
    scintBackEnergy_TimeAverage.calculateAverages();
    fillTimeProfile(scintBackEnergy_TimeAverage,h_scintBackEnergyTimeProfile);
+
+
 
    TFile *fOut=new TFile(outFile.c_str(),"RECREATE");
    if (!fOut || !fOut->IsOpen()) {

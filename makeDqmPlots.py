@@ -57,10 +57,17 @@ print types
 plotDir='%s/%s'%(options.plotsDir,os.path.splitext(path_leaf(options.inputFile))[0])
 os.system('mkdir -p %s'%plotDir)
 os.system('cp %s/index.php %s'%(str(options.dir),plotDir))
-#GO+1
-matrix=0
+
+r.gStyle.SetPalette(55) #Dark Body Radiator color map in linear scale
+r.gStyle.SetNumberContours(255)
+
 for t in types:
+    #GO+1
+    matrix=0
     c=r.TCanvas(str(t),str(t),1500,1000)
+    wavedumps=0
+    if (t.find("WAVEDUMP") != -1):
+        wavedumps=1
     if len(types[t])<3:
         c.Divide(1,2,0,0)
     elif len(types[t])<5:
@@ -84,6 +91,11 @@ for t in types:
         histo = outFile.Get(types[t][i-1])
         histo.SetLineColor(r.kRed)
         histo.SetLineWidth(2)
-        histo.Draw()
+        if (wavedumps):
+            r.gPad.SetLogz()
+            histo.SetStats(0)
+            histo.Draw("COLZ")
+        else:
+            histo.Draw()
     c.SaveAs("%s/%s.png"%(plotDir,str(t)))
     
