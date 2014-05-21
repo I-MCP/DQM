@@ -1,3 +1,4 @@
 DQM_HOME=/home/cmsdaq/DQM
-DQM_OUT_DIR=/home/cmsdaq/DQM
+DQM_OUT_DIR=/home/cmsdaq/IMCP/DQM
+DATATREE_DIR=/home/cmsdaq/IMCP/dataTree
 PLOT_MACRO=fastDQM_iMCP_BTF
