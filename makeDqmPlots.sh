@@ -6,8 +6,9 @@ if [ $# -lt 1 ]; then
 fi
 
 if [ -z "$ROOTSYS" ]; then
-    echo "Please source root environment: source $HOME/root/bin/thisroot.sh"
-    exit 1
+    source /home/cmsdaq/root/bin/thisroot.sh
+    echo "Please source root environment: source /home/cmsdaq/root/bin/thisroot.sh"
+    #exit 1
 #else
 #    echo "ROOT already configured"
 fi
@@ -30,8 +31,12 @@ fi
 echo "Sourcing DQM config ${DQM_CONFIG}"
 . ${DQM_CONFIG}
 
-mkdir -p ${DQM_OUT_DIR}/dataTree
+
+mkdir -p ${DATATREE_DIR}
 mkdir -p ${DQM_OUT_DIR}/log
+
+rootFile=${DATATREE_DIR}/${runName%%.*}.root
+convLogFile=${DQM_OUT_DIR}/log/convertRawData_${runName%%.*}.log
 
 
 echo "============================================================="
@@ -39,12 +44,19 @@ echo "       Running DQM analysis on $runFile"
 echo "============================================================="
 
 
-echo "===> Converting $runFile in ROOT format"
-${DQM_HOME}/bin/readBinary -f $1 -o ${DQM_OUT_DIR}/dataTree/${runName%%.*}.root 2>&1 > ${DQM_OUT_DIR}/log/convertRawData_${runName%%.*}.log 
-echo "Converted $runFile into ROOT: ${DQM_OUT_DIR}/dataTree/${runName%%.*}.root"
+echo "===> Converting $runFile in ROOT format at $rootFile"
+${DQM_HOME}/bin/readBinary -f $1 -o ${rootFile} 2>&1 > ${convLogFile} 
+echo "Converted $runFile into ROOT: ${rootFile}"
 
+dqmLogFile=${DQM_OUT_DIR}/log/dqmAnalysis_${runName%%.*}.log
 
 echo "===> Producing DQM plots"
-${DQM_HOME}/makeDqmPlots.py -d ${DQM_HOME} -m ${PLOT_MACRO} -i ${DQM_OUT_DIR}/dataTree/${runName%%.*}.root -o  ${DQM_OUT_DIR}/dqmOut -p  ${DQM_OUT_DIR}/dqmPlots 2>&1 >  ${DQM_OUT_DIR}/log/dqmAnalysis_${runName%%.*}.log 
+${DQM_HOME}/makeDqmPlots.py -d ${DQM_HOME} -m ${PLOT_MACRO} -i ${rootFile} -o  ${DQM_OUT_DIR}/dqmOut -p  ${DQM_OUT_DIR}/dqmPlots 2>&1 >  ${dqmLogFile}
 echo "DQM output histograms available at ${DQM_OUT_DIR}/dqmOut"
 echo "DQM output plots available at ${DQM_OUT_DIR}/dqmPlots"
+
+chmod -R uog+w $rootFile 
+chmod uog+w $convLogFile $dqmLogFile
+
+echo "Now look at the plots at the following link"
+
